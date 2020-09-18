@@ -1,12 +1,14 @@
 import React from 'react';
 import Board from "./Board";
 
+export const BOARD_SIZE = 3;
+
 class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             history: [{
-                squares: Array(9).fill(null)
+                squares: Array(BOARD_SIZE ** 2).fill(""),
             }],
             stepNumber: 0,
             xIsNext: true,
@@ -42,11 +44,19 @@ class Game extends React.Component {
         }
     }
 
+    reset() {
+        const history = this.state.history.slice();
+        this.setState({
+            stepNumber: 0,
+            history: [history[0]],
+            xIsNext: true
+        })
+    }
+
     render() {
         const history = this.state.history;
         const current = history[history.length - 1];
         const status = 'Next player: ' + (this.state.xIsNext ? "X" : "O");
-
 
         return (
             <div className="game">
@@ -59,7 +69,10 @@ class Game extends React.Component {
                 <div className="game-info">
                     <div>{status}</div>
                     <button onClick={() => this.undo()}>
-                    undo
+                        undo
+                    </button>
+                    <button onClick={() => this.reset()}>
+                        reset
                     </button>
                 </div>
             </div>
