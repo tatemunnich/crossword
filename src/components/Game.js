@@ -1,7 +1,7 @@
 import React from 'react';
 import Board from "./Board";
 
-export const BOARD_SIZE = 3;
+export const BOARD_SIZE = 7;
 
 class Game extends React.Component {
     constructor(props) {
