@@ -3,14 +3,16 @@ import React from "react";
 
 const Square = (props) => {
 
-        return (
+    return (
             <button
-                className="square"
-                onClick={props.onClick}
+                className={props.value === "." ? "black-square" : "square"}
+                id={props.index}
+                onKeyDown={props.onKeyDown}
             >
                 {props.value}
             </button>
         );
+
 }
 
 export default Square

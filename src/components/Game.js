@@ -1,45 +1,96 @@
 import React from 'react';
 import Board from "./Board";
 
-export const BOARD_SIZE = 7;
+export const BOARD_SIZE = 15;
 
 class Game extends React.Component {
     constructor(props) {
         super(props);
+        let squares = [];
+        for (let i = 0; i<BOARD_SIZE; i++) {
+            squares.push(Array(BOARD_SIZE).fill(" "));
+        }
         this.state = {
             history: [{
-                squares: Array(BOARD_SIZE ** 2).fill(""),
+                squares: squares,
             }],
             stepNumber: 0,
-            xIsNext: true,
+            isAcross: true
         }
     }
 
-    handleClick(i) {
+    getCurrentSquares() {
         const history = this.state.history;
         const current = history[history.length - 1];
-        const squares = current.squares.slice();
-        if (squares[i]) return; // don't allow writing over
-        squares[i] = this.state.xIsNext ? "X" : "O";
+        return JSON.parse(JSON.stringify(current.squares.slice())); // creates a deep copy
+    }
+
+    addHistory(squares) {
+        const history = this.state.history;
         this.setState({
             history: history.concat([{
                 squares: squares,
             }]),
             stepNumber: history.length,
-            xIsNext: !this.state.xIsNext,
         });
+    }
+
+    getWordListHelper(squares) {
+        const acrossWords = [];
+        for (let row of squares) {
+            let word = "";
+            for (let letter of row) {
+                if (letter !== ".") {
+                    word = word + letter;
+                } else if (word) {
+                    acrossWords.push(word);
+                    word = "";
+                }
+            }
+            if (word) {
+                acrossWords.push(word);
+                word = "";
+            }
+        }
+        return (acrossWords);
+    }
+
+    getWordList(squares) {
+        const transpose_squares = squares[0].map((_, colIndex) => squares.map(row => row[colIndex]));
+        return this.getWordListHelper(squares).concat(this.getWordListHelper(transpose_squares));
+    }
+
+    handleKeyDown = (e) => {
+        const input = e.key;
+        const index = e.target.attributes.id.value;
+        const row = Math.floor(index/BOARD_SIZE);
+        const column = index % BOARD_SIZE
+        const squares = this.getCurrentSquares();
+
+        if ((input.toUpperCase() !== input.toLowerCase() && input.length === 1 )) { // if letter or "."
+            squares[row][column] = input.toUpperCase();
+            this.addHistory(squares);
+            console.log(this.getWordList(squares));
+        } else if (input === '.') {
+            squares[row][column] === '.' ? squares[row][column] = ' ' : squares[row][column] = '.';
+            this.addHistory(squares);
+        }
+        else if (input === 'Backspace') {
+            squares[row][column] = " ";
+            this.addHistory(squares);
+        } else if (input === 'ArrowRight') {
+            console.log(e.target)
+        }
     }
 
     undo() {
         const stepNumber = this.state.stepNumber;
         const history = this.state.history.slice();
-        const xIsNext = this.state.xIsNext;
 
         if (stepNumber > 0) {
             this.setState({
                 stepNumber: stepNumber - 1,
                 history: history.slice(0, history.length-1),
-                xIsNext: !xIsNext
             })
         }
     }
@@ -49,25 +100,22 @@ class Game extends React.Component {
         this.setState({
             stepNumber: 0,
             history: [history[0]],
-            xIsNext: true
         })
     }
 
     render() {
         const history = this.state.history;
         const current = history[history.length - 1];
-        const status = 'Next player: ' + (this.state.xIsNext ? "X" : "O");
 
         return (
             <div className="game">
                 <div className="game-board">
                     <Board
                         squares={current.squares}
-                        onClick={(i) => this.handleClick(i)}
+                        onKeyDown={this.handleKeyDown}
                     />
                 </div>
                 <div className="game-info">
-                    <div>{status}</div>
                     <button onClick={() => this.undo()}>
                         undo
                     </button>

@@ -9,8 +9,9 @@ class Board extends React.Component {
         return (
         <Square
             key={i}
-            value={this.props.squares[i]}
-            onClick={() => this.props.onClick(i)}
+            onKeyDown={this.props.onKeyDown}
+            value={this.props.squares[Math.floor(i/BOARD_SIZE)][i%BOARD_SIZE]}
+            index={i}
         />
         );
     }
@@ -23,9 +24,11 @@ class Board extends React.Component {
             for (let j = 0; j < BOARD_SIZE; j++) {
                 cols.push(this.renderSquare(BOARD_SIZE*i+j))
             }
-            rows.push(<div className="board-row" key={i}>
-                {cols}
-            </div>)
+            rows.push(
+                <div className="board-row" key={i}>
+                    {cols}
+                </div>
+            )
         }
 
         return rows;

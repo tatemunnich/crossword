@@ -16,16 +16,18 @@ body {
   display: table;
 }
 
-.status {
-  margin-bottom: 10px;
+.black-square {
+  background: black;
 }
 
 .square {
-  background: #fff;
+  background: white;
+}
+
+.square, .black-square {
   border: 1px solid #999;
   float: left;
   font-size: 24px;
-  font-weight: bold;
   line-height: 34px;
   height: 34px;
   margin-right: -1px;
@@ -35,8 +37,18 @@ body {
   width: 34px;
 }
 
-.square:focus {
+.black-square:focus {
   outline: none;
+}
+
+.square:focus {
+  background: #dddddd;
+  /*caret-color: transparent;*/
+  outline: none;
+}
+
+.square::selection, .black-square::selection {
+  background: transparent;
 }
 
 .kbd-navigation .square:focus {
