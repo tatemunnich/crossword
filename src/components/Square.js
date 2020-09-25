@@ -1,18 +1,25 @@
 import React from "react";
 
 
-const Square = (props) => {
+class Square extends React.Component {
 
-    return (
-            <button
-                className={props.value === "." ? "black-square" : "square"}
-                id={props.index}
-                onKeyDown={props.onKeyDown}
-            >
-                {props.value}
-            </button>
+    render() {
+        return (
+                <button
+                    className={this.props.value === "." ? "black-square" : "square"}
+                    id={this.props.index}
+                    onKeyDown={this.props.onKeyDown}
+                    ref={this.props.innerRef}
+                >
+                    {this.props.value}
+                </button>
         );
-
+    }
 }
 
-export default Square
+export default React.forwardRef((props, ref) =>
+    <Square
+        innerRef={ref}
+        {...props}
+    />
+);

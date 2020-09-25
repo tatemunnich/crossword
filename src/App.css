@@ -10,7 +10,7 @@ body {
   margin: 20px;
 }
 
-.board-row:after {
+.board-row {
   clear: both;
   content: "";
   display: table;
@@ -39,16 +39,13 @@ body {
 
 .black-square:focus {
   outline: none;
+  border: 3px inset #91c8ff;
 }
 
 .square:focus {
   background: #dddddd;
-  /*caret-color: transparent;*/
   outline: none;
-}
-
-.square::selection, .black-square::selection {
-  background: transparent;
+  border: 3px inset #91c8ff;
 }
 
 .kbd-navigation .square:focus {

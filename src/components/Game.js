@@ -10,12 +10,14 @@ class Game extends React.Component {
         for (let i = 0; i<BOARD_SIZE; i++) {
             squares.push(Array(BOARD_SIZE).fill(" "));
         }
+        const boardRef = React.createRef();
         this.state = {
             history: [{
                 squares: squares,
             }],
             stepNumber: 0,
-            isAcross: true
+            isAcross: true,
+            boardRef: boardRef,
         }
     }
 
@@ -33,6 +35,35 @@ class Game extends React.Component {
             }]),
             stepNumber: history.length,
         });
+    }
+
+    focusSquare(i) {
+        if (i<BOARD_SIZE**2) {
+            const field = this.state.boardRef.current.state.squareRefs[i].current;
+            field.focus();
+        }
+    }
+
+    getLabelList(squares) { // TODO: this isn't done yet
+        let labels = [];
+        for (let i = 0; i<BOARD_SIZE; i++) {
+            labels.push(Array(BOARD_SIZE).fill(""));
+        }
+
+        for (let i = 0; i<BOARD_SIZE; i++) {
+            let prevBlack = true;
+            for (let j = 0; j<BOARD_SIZE; j++) {
+                const letter = squares[i][j];
+                if (letter === '.') {
+                    prevBlack = true;
+                } else if (prevBlack) {
+                    labels[i][j]='L';
+                    prevBlack = false;
+                }
+            }
+        }
+
+        return labels;
     }
 
     getWordListHelper(squares) {
@@ -62,24 +93,23 @@ class Game extends React.Component {
 
     handleKeyDown = (e) => {
         const input = e.key;
-        const index = e.target.attributes.id.value;
+        const index = parseInt(e.target.attributes.id.value);
         const row = Math.floor(index/BOARD_SIZE);
         const column = index % BOARD_SIZE
         const squares = this.getCurrentSquares();
 
-        if ((input.toUpperCase() !== input.toLowerCase() && input.length === 1 )) { // if letter or "."
+        if ((input.toUpperCase() !== input.toLowerCase() && input.length === 1 )) { // if letter
             squares[row][column] = input.toUpperCase();
             this.addHistory(squares);
             console.log(this.getWordList(squares));
         } else if (input === '.') {
             squares[row][column] === '.' ? squares[row][column] = ' ' : squares[row][column] = '.';
             this.addHistory(squares);
-        }
-        else if (input === 'Backspace') {
+        } else if (input === 'Backspace') {
             squares[row][column] = " ";
             this.addHistory(squares);
-        } else if (input === 'ArrowRight') {
-            console.log(e.target)
+        } else if (['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(input)) {
+            this.focusSquare(index+1)
         }
     }
 
@@ -112,7 +142,9 @@ class Game extends React.Component {
                 <div className="game-board">
                     <Board
                         squares={current.squares}
+                        labels={this.getLabelList(current.squares)}
                         onKeyDown={this.handleKeyDown}
+                        ref={this.state.boardRef}
                     />
                 </div>
                 <div className="game-info">
