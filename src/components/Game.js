@@ -1,5 +1,7 @@
 import React from 'react';
 import Board from "./Board";
+import Menu from "./Menu";
+import Panel from "./Panel";
 
 export const BOARD_SIZE = 15;
 
@@ -17,6 +19,7 @@ class Game extends React.Component {
             }],
             stepNumber: 0,
             isAcross: true,
+            panelControl: "A",
             boardRef: boardRef,
         }
     }
@@ -133,27 +136,45 @@ class Game extends React.Component {
         })
     }
 
+    /**
+     * Function for handling menu button clicks.
+     * @param e
+     */
+    handleMenuClick = (e) => {
+        this.setState({panelControl: e.target.value})
+    }
+
     render() {
         const history = this.state.history;
         const current = history[history.length - 1];
 
         return (
-            <div className="game">
-                <div className="game-board">
-                    <Board
-                        squares={current.squares}
-                        labels={this.getLabelList(current.squares)}
-                        onKeyDown={this.handleKeyDown}
-                        ref={this.state.boardRef}
+            <div className="body">
+                <div className={"menu"}>
+                    <Menu
+                        onClick={this.handleMenuClick}
                     />
                 </div>
-                <div className="game-info">
-                    <button onClick={() => this.undo()}>
-                        undo
-                    </button>
-                    <button onClick={() => this.reset()}>
-                        reset
-                    </button>
+                <div className={"game"}>
+                    <div className="game-board">
+                        <Board
+                            squares={current.squares}
+                            labels={this.getLabelList(current.squares)}
+                            onKeyDown={this.handleKeyDown}
+                            ref={this.state.boardRef}
+                        />
+                    </div>
+                    <div className="game-info">
+                        <button onClick={() => this.undo()}>
+                            undo
+                        </button>
+                        <button onClick={() => this.reset()}>
+                            reset
+                        </button>
+                    </div>
+                    <div className={"panel"}>
+                        <Panel panelControl={this.state.panelControl}/>
+                    </div>
                 </div>
             </div>
         );
