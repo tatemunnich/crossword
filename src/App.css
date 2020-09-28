@@ -55,9 +55,28 @@ body {
   background: #ddd;
 }
 
+.menu {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20px;
+}
+
+.menu-button {
+  margin-right: 10px;
+}
+
 .game {
   display: flex;
   flex-direction: row;
+}
+
+.panel {
+  display: flex;
+  border-style: solid;
+  margin-left: 20px;
+  width: 260px;
+  height: 360px;
+  padding: 20px;
 }
 
 .game-info {
