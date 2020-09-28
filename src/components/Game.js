@@ -19,9 +19,14 @@ class Game extends React.Component {
             }],
             stepNumber: 0,
             isAcross: true,
+            symmetrical: true,
             panelControl: "A",
             boardRef: boardRef,
         }
+    }
+
+    transposeArray(array) {
+        return array[0].map((_, colIndex) => array.map(row => row[colIndex]))
     }
 
     getCurrentSquares() {
@@ -47,7 +52,7 @@ class Game extends React.Component {
         }
     }
 
-    getLabelList(squares) { // TODO: this isn't done yet
+    getLabelListHelper(squares) {
         let labels = [];
         for (let i = 0; i<BOARD_SIZE; i++) {
             labels.push(Array(BOARD_SIZE).fill(""));
@@ -67,6 +72,24 @@ class Game extends React.Component {
         }
 
         return labels;
+    }
+
+    getLabelList(squares) {
+        let acrossLabels = this.getLabelListHelper(squares);
+        const transpose_squares = this.transposeArray(squares);
+        const downLabels = this.transposeArray(this.getLabelListHelper(transpose_squares));
+
+        let label = 1;
+        for (let i =0; i<BOARD_SIZE; i++) {
+            for (let j=0; j<BOARD_SIZE; j++) {
+                if (downLabels[i][j]==='L' || acrossLabels[i][j]==='L') {
+                    acrossLabels[i][j]=label.toString();
+                    label = label + 1;
+                }
+            }
+        }
+
+        return acrossLabels;
     }
 
     getWordListHelper(squares) {
@@ -90,7 +113,7 @@ class Game extends React.Component {
     }
 
     getWordList(squares) {
-        const transpose_squares = squares[0].map((_, colIndex) => squares.map(row => row[colIndex]));
+        const transpose_squares = this.transposeArray(squares);
         return this.getWordListHelper(squares).concat(this.getWordListHelper(transpose_squares));
     }
 
@@ -104,14 +127,26 @@ class Game extends React.Component {
         if ((input.toUpperCase() !== input.toLowerCase() && input.length === 1 )) { // if letter
             squares[row][column] = input.toUpperCase();
             this.addHistory(squares);
-            console.log(this.getWordList(squares));
+            console.log(this.getLabelList(squares));
+
+            if (this.state.isAcross && index%BOARD_SIZE!==BOARD_SIZE-1) {
+                this.focusSquare(index+1);
+            } else if (!this.state.isAcross) {
+                this.focusSquare(index+BOARD_SIZE);
+            }
+
         } else if (input === '.') {
             squares[row][column] === '.' ? squares[row][column] = ' ' : squares[row][column] = '.';
+            if (this.state.symmetrical && !(BOARD_SIZE%2===1 && row===Math.floor(BOARD_SIZE/2) && column===row)) { // don't mirror middle square
+                squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] === '.' ?
+                    squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = ' ' :
+                    squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = '.';
+            }
             this.addHistory(squares);
         } else if (input === 'Backspace') {
             squares[row][column] = " ";
             this.addHistory(squares);
-        } else if (['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(input)) {
+        } else if (['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(input)) { // an arrow key was pressed
             this.focusSquare(index+1)
         }
     }
