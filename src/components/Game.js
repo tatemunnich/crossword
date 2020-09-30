@@ -20,7 +20,7 @@ class Game extends React.Component {
             stepNumber: 0,
             isAcross: true,
             symmetrical: true,
-            panelControl: "A",
+            panelControl: "B",
             boardRef: boardRef,
         }
     }
@@ -198,14 +198,6 @@ class Game extends React.Component {
                             onKeyDown={this.handleKeyDown}
                             ref={this.state.boardRef}
                         />
-                    </div>
-                    <div className="game-info">
-                        <button onClick={() => this.undo()}>
-                            undo
-                        </button>
-                        <button onClick={() => this.reset()}>
-                            reset
-                        </button>
                     </div>
                     <div className={"panel"}>
                         <Panel panelControl={this.state.panelControl}/>
