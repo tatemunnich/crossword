@@ -5,6 +5,10 @@ class Square extends React.Component {
 
     render() {
         return (
+            <div className="entry">
+                <label className="label">
+                    {this.props.label}
+                </label>
                 <button
                     className={this.props.value === "." ? "black-square" : "square"}
                     id={this.props.index}
@@ -13,6 +17,7 @@ class Square extends React.Component {
                 >
                     {this.props.value}
                 </button>
+            </div>
         );
     }
 }
