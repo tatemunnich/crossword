@@ -176,7 +176,15 @@ class Game extends React.Component {
      * @param e
      */
     handleMenuClick = (e) => {
-        this.setState({panelControl: e.target.value})
+        const value = e.target.value;
+
+        if (value==="undo") {
+            this.undo();
+        } else if (value==="reset") {
+            this.reset();
+        } else {
+            this.setState({panelControl: value});
+        }
     }
 
     render() {

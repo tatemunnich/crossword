@@ -1,5 +1,4 @@
 import React from "react";
-import Panel from "./Panel";
 
 /**
  * Class that represents the top menu.
@@ -19,8 +18,8 @@ class Menu extends React.Component {
                     {/*<button className={"menu-button"} value={"H"} onClick={this.props.onClick}>H</button>*/}
                 </div>
                 <div className={"menubar-right"}>
-                    <button className={"menu-button"}>Undo</button>
-                    <button className={"menu-button"}>Redo</button>
+                    <button className={"menu-button"} value="undo" onClick={this.props.onClick}>Undo</button>
+                    <button className={"menu-button"} value="reset" onClick={this.props.onClick}>Reset</button>
                 </div>
             </div>
         )
