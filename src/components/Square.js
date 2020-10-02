@@ -10,6 +10,7 @@ class Square extends React.Component {
                     {this.props.label}
                 </label>
                 <button
+                    tabIndex={this.props.index === 0 ? "auto" : -1}
                     className={this.props.value === "." ? "black-square" : "square"}
                     id={this.props.index}
                     onKeyDown={this.props.onKeyDown}

@@ -117,6 +117,26 @@ class Game extends React.Component {
         return this.getWordListHelper(squares).concat(this.getWordListHelper(transpose_squares));
     }
 
+    getForwardIndex(currentIndex) {
+        if (this.state.isAcross && currentIndex%BOARD_SIZE!==BOARD_SIZE-1) {
+            return currentIndex+1;
+        } else if (!this.state.isAcross) {
+            return currentIndex + BOARD_SIZE;
+        } else {
+            return currentIndex;
+        }
+    }
+
+    getBackwardIndex(currentIndex) {
+        if (this.state.isAcross && currentIndex%BOARD_SIZE!==0) {
+           return currentIndex-1;
+        } else if (!this.state.isAcross) {
+            return currentIndex-BOARD_SIZE;
+        } else {
+            return currentIndex;
+        }
+    }
+
     handleKeyDown = (e) => {
         const input = e.key;
         const index = parseInt(e.target.attributes.id.value);
@@ -127,25 +147,45 @@ class Game extends React.Component {
         if ((input.toUpperCase() !== input.toLowerCase() && input.length === 1 )) { // if letter
             squares[row][column] = input.toUpperCase();
             this.addHistory(squares);
-            console.log(this.getLabelList(squares));
-
-            if (this.state.isAcross && index%BOARD_SIZE!==BOARD_SIZE-1) {
-                this.focusSquare(index+1);
-            } else if (!this.state.isAcross) {
-                this.focusSquare(index+BOARD_SIZE);
-            }
+            this.focusSquare(this.getForwardIndex(index));
 
         } else if (input === '.') {
             squares[row][column] === '.' ? squares[row][column] = ' ' : squares[row][column] = '.';
             if (this.state.symmetrical && !(BOARD_SIZE%2===1 && row===Math.floor(BOARD_SIZE/2) && column===row)) { // don't mirror middle square
+                // TODO: fix problems when toggling between symmetrical and not
                 squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] === '.' ?
                     squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = ' ' :
                     squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = '.';
             }
             this.addHistory(squares);
+
         } else if (input === 'Backspace') {
-            squares[row][column] = " ";
-            this.addHistory(squares);
+            e.preventDefault();
+            if (squares[row][column] === " ") {
+                const back = this.getBackwardIndex(index);
+                squares[Math.floor(back/BOARD_SIZE)][back%BOARD_SIZE] = " ";
+                this.focusSquare(back);
+                this.addHistory(squares);
+            } else if (squares[row][column] === '.' && this.state.symmetrical && !(BOARD_SIZE%2===1 && row===Math.floor(BOARD_SIZE/2) && column===row)) {
+                squares[row][column] = " ";
+                squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] === '.' ?
+                    squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = ' ' :
+                    squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = '.';
+                this.addHistory(squares);
+            } else {
+                squares[row][column] = " ";
+                this.addHistory(squares);
+            }
+
+        } else if (input === " ") {
+            if (squares[row][column] === " ") {
+                this.focusSquare(this.getForwardIndex(index));
+            } else {
+                squares[row][column] = " ";
+                this.focusSquare(this.getForwardIndex(index));
+                this.addHistory(squares);
+            }
+
         } else if (['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(input)) { // an arrow key was pressed
             this.focusSquare(index+1)
         }
