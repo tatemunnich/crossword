@@ -186,9 +186,16 @@ class Game extends React.Component {
                 this.addHistory(squares);
             }
 
-        } else if (['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(input)) { // an arrow key was pressed
+        } else if (['ArrowRight'].includes(input)) { // an arrow key was pressed
             this.focusSquare(index+1)
+        } else if (['ArrowLeft'].includes(input)) {
+            this.focusSquare(index-1)
+        } else if (['ArrowUp'].includes(input)) {
+            this.focusSquare(index-15)
+        } else if (['ArrowDown'].includes(input)) {
+            this.focusSquare(index+15)
         }
+        //Todo: error message when moving off top of board
     }
 
     undo() {
