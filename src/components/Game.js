@@ -46,7 +46,7 @@ class Game extends React.Component {
     }
 
     focusSquare(i) {
-        if (i<BOARD_SIZE**2) {
+        if (i<BOARD_SIZE**2 && i>=0) {
             const field = this.state.boardRef.current.state.squareRefs[i].current;
             field.focus();
         }
@@ -188,14 +188,17 @@ class Game extends React.Component {
 
         } else if (['ArrowRight'].includes(input)) { // an arrow key was pressed
             this.focusSquare(index+1)
+            this.setState({isAcross: true});
         } else if (['ArrowLeft'].includes(input)) {
             this.focusSquare(index-1)
+            this.setState({isAcross: true});
         } else if (['ArrowUp'].includes(input)) {
             this.focusSquare(index-15)
+            this.setState({isAcross: false});
         } else if (['ArrowDown'].includes(input)) {
             this.focusSquare(index+15)
+            this.setState({isAcross: false});
         }
-        //Todo: error message when moving off top of board
     }
 
     undo() {
