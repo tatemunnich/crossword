@@ -5,7 +5,7 @@ class Square extends React.Component {
 
     render() {
         return (
-            <div className="entry">
+            <div className="entry" onClick={this.props.onClick}>
                 <label className="label">
                     {this.props.label}
                 </label>

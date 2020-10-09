@@ -21,6 +21,7 @@ class Board extends React.Component {
         <Square
             key={i}
             onKeyDown={this.props.onKeyDown}
+            onClick={this.props.onClick}
             value={this.props.squares[Math.floor(i/BOARD_SIZE)][i%BOARD_SIZE]}
             label={this.props.labels[Math.floor(i/BOARD_SIZE)][i%BOARD_SIZE]}
             index={i}

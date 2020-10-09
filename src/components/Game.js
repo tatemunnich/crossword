@@ -22,6 +22,7 @@ class Game extends React.Component {
             symmetrical: true,
             panelControl: "B",
             boardRef: boardRef,
+            focusIndex: 0,
         }
     }
 
@@ -49,6 +50,9 @@ class Game extends React.Component {
         if (i<BOARD_SIZE**2 && i>=0) {
             const field = this.state.boardRef.current.state.squareRefs[i].current;
             field.focus();
+            this.setState({
+                focusIndex: i
+            })
         }
     }
 
@@ -75,21 +79,22 @@ class Game extends React.Component {
     }
 
     getLabelList(squares) {
-        let acrossLabels = this.getLabelListHelper(squares);
+        const acrossLabels = this.getLabelListHelper(squares);
         const transpose_squares = this.transposeArray(squares);
         const downLabels = this.transposeArray(this.getLabelListHelper(transpose_squares));
+        let labels = acrossLabels.slice();
 
         let label = 1;
         for (let i =0; i<BOARD_SIZE; i++) {
             for (let j=0; j<BOARD_SIZE; j++) {
                 if (downLabels[i][j]==='L' || acrossLabels[i][j]==='L') {
-                    acrossLabels[i][j]=label.toString();
+                    labels[i][j]=label.toString();
                     label = label + 1;
                 }
             }
         }
 
-        return acrossLabels;
+        return labels;
     }
 
     getWordListHelper(squares) {
@@ -137,11 +142,34 @@ class Game extends React.Component {
         }
     }
 
+    getCurrentWordHelper(row, column, squares) {
+
+        while (column%BOARD_SIZE !== 0 && squares[row][column] !== ".") {
+            column = column - 1
+        }
+
+        let word = "";
+        while (column%BOARD_SIZE !== BOARD_SIZE-1 && squares[row][column] !== ".") {
+            word = word + squares[row][column];
+            column = column + 1;
+        }
+
+        return word;
+    }
+
+    getCurrentWords(index, squares) {
+        const row = Math.floor(index/BOARD_SIZE);
+        const column = index % BOARD_SIZE;
+        const acrossWord = this.getCurrentWordHelper(row, column, squares);
+        const downWord = this.getCurrentWordHelper(column, row, this.transposeArray(squares));
+        return [acrossWord, downWord];
+    }
+
     handleKeyDown = (e) => {
         const input = e.key;
-        const index = parseInt(e.target.attributes.id.value);
+        const index = parseInt(e.target.id);
         const row = Math.floor(index/BOARD_SIZE);
-        const column = index % BOARD_SIZE
+        const column = index % BOARD_SIZE;
         const squares = this.getCurrentSquares();
 
         if ((input.toUpperCase() !== input.toLowerCase() && input.length === 1 )) { // if letter
@@ -237,6 +265,11 @@ class Game extends React.Component {
         }
     }
 
+    handleSquareClick = (e) => {
+        const index = parseInt(e.target.id);
+        this.focusSquare(index);
+    }
+
     render() {
         const history = this.state.history;
         const current = history[history.length - 1];
@@ -252,6 +285,7 @@ class Game extends React.Component {
                     <div className="game-board">
                         <Board
                             squares={current.squares}
+                            onClick={this.handleSquareClick}
                             labels={this.getLabelList(current.squares)}
                             onKeyDown={this.handleKeyDown}
                             ref={this.state.boardRef}
