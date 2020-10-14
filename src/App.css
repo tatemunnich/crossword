@@ -26,7 +26,12 @@ body {
   font-size: 22px;
 }
 
-.square, .black-square {
+.highlighted-square {
+  background-color: #bfc4d6;
+  font-size: 22px;
+}
+
+.square, .black-square, .highlighted-square {
   border: 1px solid #999;
   float: left;
   line-height: 41px;

@@ -23,6 +23,8 @@ class Game extends React.Component {
             panelControl: "B",
             boardRef: boardRef,
             focusIndex: null,
+            focusRow: null,
+            focusCol: null
         }
     }
 
@@ -51,7 +53,9 @@ class Game extends React.Component {
             const field = this.state.boardRef.current.state.squareRefs[i].current;
             field.focus();
             this.setState({
-                focusIndex: i
+                focusIndex: i,
+                focusRow: Math.floor(i/BOARD_SIZE),
+                focusCol: i % BOARD_SIZE
             })
         }
     }
@@ -286,6 +290,49 @@ class Game extends React.Component {
         this.focusSquare(index);
     }
 
+    getHighlightedSquares(squares) {
+        const acrossHighlights = this.getHighlightedSquaresHelper(squares);
+        const transposeSquares = this.transposeArray(acrossHighlights);
+        const downHighlights = this.transposeArray(transposeSquares);
+        let highlights = acrossHighlights.slice();
+
+        for (let i = 0; i<BOARD_SIZE; i++) {
+            for (let j = 0; j<BOARD_SIZE; j++) {
+                if (acrossHighlights[i][j] === 'H' || downHighlights[i][j] === 'H') {
+                    highlights[i][j] = true;
+                }
+            }
+        }
+        return highlights;
+    }
+
+    getHighlightedSquaresHelper() {
+        let highlightedSquares = [];
+        let squares = this.getCurrentSquares();
+        for (let i = 0; i<BOARD_SIZE; i++) {
+            highlightedSquares.push(Array(BOARD_SIZE).fill(false));
+        }
+
+        for (let i = 0; i<BOARD_SIZE; i++) {
+            for (let j = 0; j<BOARD_SIZE; j++) {
+                if (squares[i][j] === '.') {
+                    for (let k = 0; k<j; k++) {
+                        highlightedSquares[i][k] = false;
+                    }
+                }
+                else if((i * 15 + j) === this.state.focusIndex) {
+                    highlightedSquares[i][j] = false;
+                } else if (i === this.state.focusRow && this.state.isAcross) {
+                    highlightedSquares[i][j] = true;
+                } else if (j === this.state.focusCol && !this.state.isAcross) {
+                    highlightedSquares[i][j] = true;
+                }
+            }
+        }
+
+        return highlightedSquares;
+    }
+
     render() {
         const history = this.state.history;
         const current = history[history.length - 1];
@@ -305,6 +352,7 @@ class Game extends React.Component {
                             labels={this.getLabelList(current.squares)}
                             onKeyDown={this.handleKeyDown}
                             ref={this.state.boardRef}
+                            highlightedSquares={this.getHighlightedSquares(current.squares)}
                         />
                     </div>
                     <div className={"panel"}>
