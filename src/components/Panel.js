@@ -1,4 +1,5 @@
 import React from "react";
+import search from "../match";
 
 class Panel extends React.Component {
     render() {
@@ -11,7 +12,7 @@ class Panel extends React.Component {
             panelContents = <PanelB />
         }
         else if (panelControl === "C") {
-            panelContents = <PanelC />
+            panelContents = PanelC(this.props.currentWords);
         }
         else if (panelControl === "D") {
             panelContents = <PanelD />
@@ -55,26 +56,26 @@ function PanelB() {
     )
 }
 
-function PanelC() {
+function PanelC(words) {
+    const acrossList = search(words[0]).slice(0,40).map((word) =>
+        <li>{word}</li>
+    );
+    const downList = search(words[1]).slice(0,40).map((word) =>
+        <li onClick={(e) => {console.log('hi')}}>
+            {word}
+        </li>
+    );
+
     return (
         <div className={"panel-contents"}>
             <h1>Word Suggestions</h1>
-            <p>To view word suggestions, select a square and view the words that fit</p>
+            <p>Across</p>
             <div className={"suggestion-box"}>
-                <label for={"across"}>1a: </label>
-                <select name={"across"} id={"across"}>
-                    <option value={"Apple"}>Peak</option>
-                    <option value={"Orange"}>Pear</option>
-                    <option value={"Pear"}>Pool</option>
-                </select>
+                {acrossList}
             </div>
+            <p>Down</p>
             <div className={"suggestion-box"}>
-                <label htmlFor={"down"}>1d: </label>
-                <select name={"down"} id={"down"}>
-                    <option value={"Apple"}>Peak</option>
-                    <option value={"Orange"}>Pear</option>
-                    <option value={"Pear"}>Pool</option>
-                </select>
+                {downList}
             </div>
         </div>
     )

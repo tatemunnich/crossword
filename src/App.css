@@ -108,12 +108,20 @@ body {
   padding: 20px;
 }
 
+.panel-contents {
+  width: 260px;
+}
+
 .game-info {
   margin-left: 20px;
 }
 
 .suggestion-box {
   margin: 20px;
+  list-style-type: none;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  max-height: 150px;
 }
 
 /*End from tutorial CSS*/

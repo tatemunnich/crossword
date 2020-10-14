@@ -22,7 +22,7 @@ class Game extends React.Component {
             symmetrical: true,
             panelControl: "B",
             boardRef: boardRef,
-            focusIndex: 0,
+            focusIndex: null,
         }
     }
 
@@ -125,7 +125,7 @@ class Game extends React.Component {
     getForwardIndex(currentIndex) {
         if (this.state.isAcross && currentIndex%BOARD_SIZE!==BOARD_SIZE-1) {
             return currentIndex+1;
-        } else if (!this.state.isAcross) {
+        } else if (!this.state.isAcross && currentIndex<BOARD_SIZE**2-BOARD_SIZE) {
             return currentIndex + BOARD_SIZE;
         } else {
             return currentIndex;
@@ -135,7 +135,7 @@ class Game extends React.Component {
     getBackwardIndex(currentIndex) {
         if (this.state.isAcross && currentIndex%BOARD_SIZE!==0) {
            return currentIndex-1;
-        } else if (!this.state.isAcross) {
+        } else if (!this.state.isAcross && currentIndex>=BOARD_SIZE) {
             return currentIndex-BOARD_SIZE;
         } else {
             return currentIndex;
@@ -143,26 +143,42 @@ class Game extends React.Component {
     }
 
     getCurrentWordHelper(row, column, squares) {
+        if (squares[row][column]===".") return "";
 
-        while (column%BOARD_SIZE !== 0 && squares[row][column] !== ".") {
+        while (column%BOARD_SIZE !== 0 && squares[row][column-1] !== ".") {
             column = column - 1
         }
 
         let word = "";
-        while (column%BOARD_SIZE !== BOARD_SIZE-1 && squares[row][column] !== ".") {
+        while (column%BOARD_SIZE !== BOARD_SIZE-1 && squares[row][column+1] !== ".") {
             word = word + squares[row][column];
             column = column + 1;
         }
+        word = word + squares[row][column]
 
         return word;
     }
 
     getCurrentWords(index, squares) {
+        if (index===null) return ["",""]
+
         const row = Math.floor(index/BOARD_SIZE);
         const column = index % BOARD_SIZE;
         const acrossWord = this.getCurrentWordHelper(row, column, squares);
         const downWord = this.getCurrentWordHelper(column, row, this.transposeArray(squares));
         return [acrossWord, downWord];
+    }
+
+    toggleBlackSquare(index, squares) {
+        const row = Math.floor(index/BOARD_SIZE);
+        const column = index % BOARD_SIZE;
+        squares[row][column] === '.' ? squares[row][column] = ' ' : squares[row][column] = '.';  // toggle input square
+
+        if (this.state.symmetrical) {
+            squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = squares[row][column]
+        }
+
+        return squares
     }
 
     handleKeyDown = (e) => {
@@ -178,28 +194,28 @@ class Game extends React.Component {
             this.focusSquare(this.getForwardIndex(index));
 
         } else if (input === '.') {
-            squares[row][column] === '.' ? squares[row][column] = ' ' : squares[row][column] = '.';
-            if (this.state.symmetrical && !(BOARD_SIZE%2===1 && row===Math.floor(BOARD_SIZE/2) && column===row)) { // don't mirror middle square
-                // TODO: fix problems when toggling between symmetrical and not
-                squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] === '.' ?
-                    squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = ' ' :
-                    squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = '.';
-            }
-            this.addHistory(squares);
+            const new_squares = this.toggleBlackSquare(index, squares);
+            this.addHistory(new_squares);
 
         } else if (input === 'Backspace') {
             e.preventDefault();
             if (squares[row][column] === " ") {
-                const back = this.getBackwardIndex(index);
-                squares[Math.floor(back/BOARD_SIZE)][back%BOARD_SIZE] = " ";
-                this.focusSquare(back);
-                this.addHistory(squares);
-            } else if (squares[row][column] === '.' && this.state.symmetrical && !(BOARD_SIZE%2===1 && row===Math.floor(BOARD_SIZE/2) && column===row)) {
-                squares[row][column] = " ";
-                squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] === '.' ?
-                    squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = ' ' :
-                    squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = '.';
-                this.addHistory(squares);
+                const backwardIndex = this.getBackwardIndex(index);
+                const backwardLetter = squares[Math.floor(backwardIndex/BOARD_SIZE)][backwardIndex%BOARD_SIZE];
+                if (backwardLetter === " ") {
+                    this.focusSquare(backwardIndex);
+                } else if (backwardLetter === ".") {
+                    const new_squares = this.toggleBlackSquare(backwardIndex, squares);
+                    this.focusSquare(backwardIndex)
+                    this.addHistory(new_squares);
+                } else {
+                    squares[Math.floor(backwardIndex/BOARD_SIZE)][backwardIndex%BOARD_SIZE] = " ";
+                    this.focusSquare(backwardIndex);
+                    this.addHistory(squares);
+                }
+            } else if (squares[row][column] === '.') {
+                const new_squares = this.toggleBlackSquare(index, squares)
+                this.addHistory(new_squares);
             } else {
                 squares[row][column] = " ";
                 this.addHistory(squares);
@@ -214,17 +230,17 @@ class Game extends React.Component {
                 this.addHistory(squares);
             }
 
-        } else if (['ArrowRight'].includes(input)) { // an arrow key was pressed
+        } else if (input === "ArrowRight") { // an arrow key was pressed
             this.focusSquare(index+1)
             this.setState({isAcross: true});
-        } else if (['ArrowLeft'].includes(input)) {
+        } else if (input === "ArrowLeft") {
             this.focusSquare(index-1)
             this.setState({isAcross: true});
-        } else if (['ArrowUp'].includes(input)) {
-            this.focusSquare(index-15)
+        } else if (input === "ArrowUp") {
+            this.focusSquare(index-BOARD_SIZE)
             this.setState({isAcross: false});
-        } else if (['ArrowDown'].includes(input)) {
-            this.focusSquare(index+15)
+        } else if (input === "ArrowDown") {
+            this.focusSquare(index+BOARD_SIZE)
             this.setState({isAcross: false});
         }
     }
@@ -292,7 +308,10 @@ class Game extends React.Component {
                         />
                     </div>
                     <div className={"panel"}>
-                        <Panel panelControl={this.state.panelControl}/>
+                        <Panel
+                            panelControl={this.state.panelControl}
+                            currentWords={this.getCurrentWords(this.state.focusIndex, current.squares)}
+                        />
                     </div>
                 </div>
             </div>
