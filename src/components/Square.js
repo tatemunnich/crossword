@@ -11,12 +11,13 @@ class Square extends React.Component {
                 </label>
                 <button
                     tabIndex={this.props.index === 0 ? "auto" : -1}
-                    className={this.props.value === "." ? "black-square" : "square"}
+                    className={this.props.value === "." ? "black-square" : "square" ? this.props.highlight === true ? "highlighted-square" : "square" : "square"}
                     id={this.props.index}
                     onKeyDown={this.props.onKeyDown}
                     ref={this.props.innerRef}
                 >
                     {this.props.value}
+                    {this.props.highlight}
                 </button>
             </div>
         );

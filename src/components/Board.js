@@ -26,6 +26,7 @@ class Board extends React.Component {
             label={this.props.labels[Math.floor(i/BOARD_SIZE)][i%BOARD_SIZE]}
             index={i}
             ref={this.state.squareRefs[i]}
+            highlight={this.props.highlightedSquares[Math.floor(i/BOARD_SIZE)][i%BOARD_SIZE]}
         />
         );
     }
