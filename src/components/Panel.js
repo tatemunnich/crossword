@@ -12,7 +12,7 @@ class Panel extends React.Component {
             panelContents = <PanelB />
         }
         else if (panelControl === "C") {
-            panelContents = PanelC(this.props.currentWords);
+            panelContents = PanelC(this.props.currentWords, this.props.onSuggestionClick)
         }
         else if (panelControl === "D") {
             panelContents = <PanelD />
@@ -56,12 +56,21 @@ function PanelB() {
     )
 }
 
-function PanelC(words) {
-    const acrossList = search(words[0]).slice(0,40).map((word) =>
-        <li>{word}</li>
+function PanelC(words, onSuggestionClick) {
+    const word_limit = 100;
+    const acrossList = search(words[0]).slice(0, word_limit).map((word) =>
+        <li
+            onMouseDown={e=>onSuggestionClick(e, true)}
+            className="suggestion"
+            key={word}
+        >{word}</li>
     );
-    const downList = search(words[1]).slice(0,40).map((word) =>
-        <li onClick={(e) => {console.log('hi')}}>
+    const downList = search(words[1]).slice(0, word_limit).map((word) =>
+        <li
+            onMouseDown={e=> onSuggestionClick(e, false)}
+            className="suggestion"
+            key={word}
+        >
             {word}
         </li>
     );

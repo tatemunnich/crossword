@@ -14,6 +14,7 @@ body {
   clear: both;
   content: "";
   display: table;
+  width: 495px;
 }
 
 .black-square {

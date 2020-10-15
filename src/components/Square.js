@@ -3,21 +3,46 @@ import React from "react";
 
 class Square extends React.Component {
 
+    classStyle() {
+        if (this.props.value === '.') {
+            return "black-square"
+        } else if (this.props.highlight) {
+            return "highlighted-square"
+        } else {
+            return "square"
+        }
+    }
+
+    ariaLabel() {
+        if (this.props.value === '.') {
+            return "black square"
+        } else if (this.props.value === ' ') {
+            return "empty square"
+        } else {
+            return this.props.value
+        }
+    }
+
     render() {
         return (
-            <div className="entry" onClick={this.props.onClick}>
-                <label className="label">
-                    {this.props.label}
-                </label>
+            <div className="entry">
+                {this.props.label ?
+                    <label className="label">
+                        {this.props.label}
+                    </label>
+                    : null
+                }
                 <button
                     tabIndex={this.props.index === 0 ? "auto" : -1}
-                    className={this.props.value === "." ? "black-square" : "square" ? this.props.highlight === true ? "highlighted-square" : "square" : "square"}
+                    className={this.classStyle()}
                     id={this.props.index}
                     onKeyDown={this.props.onKeyDown}
+                    onMouseDown={this.props.onClick}
                     ref={this.props.innerRef}
+                    aria-label={this.ariaLabel()}
                 >
                     {this.props.value}
-                    {this.props.highlight}
+                    {/*{this.props.highlight}*/}  {/*TODO: ask Spencer about this*/}
                 </button>
             </div>
         );

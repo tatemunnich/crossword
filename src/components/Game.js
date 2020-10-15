@@ -8,14 +8,10 @@ export const BOARD_SIZE = 15;
 class Game extends React.Component {
     constructor(props) {
         super(props);
-        let squares = [];
-        for (let i = 0; i<BOARD_SIZE; i++) {
-            squares.push(Array(BOARD_SIZE).fill(" "));
-        }
         const boardRef = React.createRef();
         this.state = {
             history: [{
-                squares: squares,
+                squares: this.fill2dArray(" "),
             }],
             stepNumber: 0,
             isAcross: true,
@@ -29,7 +25,16 @@ class Game extends React.Component {
     }
 
     transposeArray(array) {
+        // https://stackoverflow.com/questions/17428587/transposing-a-2d-array-in-javascript
         return array[0].map((_, colIndex) => array.map(row => row[colIndex]))
+    }
+
+    fill2dArray(fill) {
+        let array = []
+        for (let i=0; i<BOARD_SIZE; i++) {
+            array.push(Array(BOARD_SIZE).fill(fill))
+        }
+        return array
     }
 
     getCurrentSquares() {
@@ -61,10 +66,7 @@ class Game extends React.Component {
     }
 
     getLabelListHelper(squares) {
-        let labels = [];
-        for (let i = 0; i<BOARD_SIZE; i++) {
-            labels.push(Array(BOARD_SIZE).fill(""));
-        }
+        let labels = this.fill2dArray("")
 
         for (let i = 0; i<BOARD_SIZE; i++) {
             let prevBlack = true;
@@ -101,31 +103,6 @@ class Game extends React.Component {
         return labels;
     }
 
-    getWordListHelper(squares) {
-        const acrossWords = [];
-        for (let row of squares) {
-            let word = "";
-            for (let letter of row) {
-                if (letter !== ".") {
-                    word = word + letter;
-                } else if (word) {
-                    acrossWords.push(word);
-                    word = "";
-                }
-            }
-            if (word) {
-                acrossWords.push(word);
-                word = "";
-            }
-        }
-        return (acrossWords);
-    }
-
-    getWordList(squares) {
-        const transpose_squares = this.transposeArray(squares);
-        return this.getWordListHelper(squares).concat(this.getWordListHelper(transpose_squares));
-    }
-
     getForwardIndex(currentIndex) {
         if (this.state.isAcross && currentIndex%BOARD_SIZE!==BOARD_SIZE-1) {
             return currentIndex+1;
@@ -146,7 +123,51 @@ class Game extends React.Component {
         }
     }
 
-    getCurrentWordHelper(row, column, squares) {
+    getStartPosition(index, squares, isAcross) {
+        let row = Math.floor(index/BOARD_SIZE);
+        let column = index%BOARD_SIZE;
+
+        if (squares[row][column]===".") return [row, column];
+
+        if (isAcross) {
+            while (column%BOARD_SIZE !== 0 && squares[row][column-1] !== ".") {
+                column = column - 1
+            }
+            return [row, column]
+        } else {
+            let trans_column = Math.floor(index/BOARD_SIZE);
+            let trans_row = index%BOARD_SIZE;
+            squares = this.transposeArray(squares);
+            while (trans_column%BOARD_SIZE !== 0 && squares[trans_row][trans_column-1] !== ".") {
+                trans_column = trans_column - 1
+            }
+            return [trans_column, trans_row]
+        }
+    }
+
+    getEndPosition(index, squares, isAcross) {
+        let row = Math.floor(index/BOARD_SIZE);
+        let column = index%BOARD_SIZE;
+
+        if (squares[row][column]===".") return [row, column];
+
+        if (isAcross) {
+            while (column%BOARD_SIZE !== BOARD_SIZE-1 && squares[row][column+1] !== ".") {
+                column = column + 1
+            }
+            return [row, column]
+        } else {
+            let trans_column = Math.floor(index/BOARD_SIZE);
+            let trans_row = index%BOARD_SIZE;
+            squares = this.transposeArray(squares);
+            while (trans_column%BOARD_SIZE !== BOARD_SIZE-1 && squares[trans_row][trans_column+1] !== ".") {
+                trans_column = trans_column + 1
+            }
+            return [trans_column, trans_row]
+        }
+    }
+
+    getCurrentWordsHelper(row, column, squares) {
         if (squares[row][column]===".") return "";
 
         while (column%BOARD_SIZE !== 0 && squares[row][column-1] !== ".") {
@@ -168,8 +189,8 @@ class Game extends React.Component {
 
         const row = Math.floor(index/BOARD_SIZE);
         const column = index % BOARD_SIZE;
-        const acrossWord = this.getCurrentWordHelper(row, column, squares);
-        const downWord = this.getCurrentWordHelper(column, row, this.transposeArray(squares));
+        const acrossWord = this.getCurrentWordsHelper(row, column, squares);
+        const downWord = this.getCurrentWordsHelper(column, row, this.transposeArray(squares));
         return [acrossWord, downWord];
     }
 
@@ -185,14 +206,44 @@ class Game extends React.Component {
         return squares
     }
 
+    handleArrowKey(input, index) {
+        if (this.state.isAcross) {
+            switch (input) {
+                case "ArrowLeft":
+                    this.focusSquare(this.getBackwardIndex(index));
+                    break;
+                case "ArrowRight":
+                    this.focusSquare(this.getForwardIndex(index));
+                    break;
+                default:
+                    this.setState({isAcross: false})
+            }
+        } else {
+            switch (input) {
+                case "ArrowUp":
+                    this.focusSquare(this.getBackwardIndex(index));
+                    break;
+                case "ArrowDown":
+                    this.focusSquare(this.getForwardIndex(index));
+                    break;
+                default:
+                    this.setState({isAcross: true})
+            }
+
+        }
+    }
+
     handleKeyDown = (e) => {
         const input = e.key;
         const index = parseInt(e.target.id);
         const row = Math.floor(index/BOARD_SIZE);
         const column = index % BOARD_SIZE;
-        const squares = this.getCurrentSquares();
+        let squares = this.getCurrentSquares();
 
         if ((input.toUpperCase() !== input.toLowerCase() && input.length === 1 )) { // if letter
+            if (squares[row][column] === '.') {
+                squares = this.toggleBlackSquare(index, squares)
+            }
             squares[row][column] = input.toUpperCase();
             this.addHistory(squares);
             this.focusSquare(this.getForwardIndex(index));
@@ -234,18 +285,8 @@ class Game extends React.Component {
                 this.addHistory(squares);
             }
 
-        } else if (input === "ArrowRight") { // an arrow key was pressed
-            this.focusSquare(index+1)
-            this.setState({isAcross: true});
-        } else if (input === "ArrowLeft") {
-            this.focusSquare(index-1)
-            this.setState({isAcross: true});
-        } else if (input === "ArrowUp") {
-            this.focusSquare(index-BOARD_SIZE)
-            this.setState({isAcross: false});
-        } else if (input === "ArrowDown") {
-            this.focusSquare(index+BOARD_SIZE)
-            this.setState({isAcross: false});
+        } else if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(input)) { // an arrow key was pressed
+            this.handleArrowKey(input, index);
         }
     }
 
@@ -287,7 +328,12 @@ class Game extends React.Component {
 
     handleSquareClick = (e) => {
         const index = parseInt(e.target.id);
-        this.focusSquare(index);
+        if (this.state.focusIndex === index) {
+            const isAcross = this.state.isAcross;
+            this.setState({isAcross: !isAcross})
+        } else {
+            this.focusSquare(index);
+        }
     }
 
     getHighlightedSquares(squares) {
@@ -307,11 +353,8 @@ class Game extends React.Component {
     }
 
     getHighlightedSquaresHelper() {
-        let highlightedSquares = [];
+        let highlightedSquares = this.fill2dArray(false);
         let squares = this.getCurrentSquares();
-        for (let i = 0; i<BOARD_SIZE; i++) {
-            highlightedSquares.push(Array(BOARD_SIZE).fill(false));
-        }
 
         for (let i = 0; i<BOARD_SIZE; i++) {
             for (let j = 0; j<BOARD_SIZE; j++) {
@@ -333,12 +376,52 @@ class Game extends React.Component {
         return highlightedSquares;
     }
 
+    handleSuggestionClick = (e, isAcross) => {
+        const word = e.target.textContent;
+        const squares = this.getCurrentSquares();
+        const index = this.state.focusIndex;
+        const new_squares = this.fillWord(index, squares, word, isAcross);
+        this.addHistory(new_squares);
+        this.setState({isAcross: isAcross})
+    }
+
+    fillWord(index, squares, word, isAcross) {
+        const [start_row, start_column] = this.getStartPosition(index, squares, isAcross);
+        const [end_row, end_column] = this.getEndPosition(index, squares, isAcross);
+        if (isAcross) {
+            let word_index = 0;
+            for (let i=start_column; i<= end_column; i++) {
+                squares[start_row][i] = word[word_index]
+                word_index = word_index + 1
+            }
+        } else {
+            let word_index = 0;
+            for (let i=start_row; i<= end_row; i++) {
+                squares[i][start_column] = word[word_index]
+                word_index = word_index + 1
+            }
+        }
+
+
+        return squares
+    }
+
+    handleBodyClick = (e) => {
+        if (!['square', 'suggestion', 'highlighted-square', 'black-square'].includes(e.target.className)) {
+            this.setState({
+                focusIndex: null,
+                focusRow: null,
+                focusCol: null
+            })
+        }
+    }
+
     render() {
         const history = this.state.history;
         const current = history[history.length - 1];
 
         return (
-            <div className="body">
+            <div className="body" onMouseDown={this.handleBodyClick}>
                 <div className={"menu"}>
                     <Menu
                         onClick={this.handleMenuClick}
@@ -359,6 +442,7 @@ class Game extends React.Component {
                         <Panel
                             panelControl={this.state.panelControl}
                             currentWords={this.getCurrentWords(this.state.focusIndex, current.squares)}
+                            onSuggestionClick={this.handleSuggestionClick}
                         />
                     </div>
                 </div>
