@@ -9,7 +9,7 @@ class Square extends React.Component {
         } else if (this.props.highlight) {
             return "highlighted-square"
         } else {
-            return "square"
+            return "normal-square"
         }
     }
 
@@ -25,7 +25,7 @@ class Square extends React.Component {
 
     render() {
         return (
-            <div className="entry">
+            <td className="square">
                 {this.props.label ?
                     <label className="label">
                         {this.props.label}
@@ -44,7 +44,7 @@ class Square extends React.Component {
                     {this.props.value}
                     {/*{this.props.highlight}*/}  {/*TODO: ask Spencer about this*/}
                 </button>
-            </div>
+            </td>
         );
     }
 }

@@ -16,7 +16,7 @@ class Game extends React.Component {
             stepNumber: 0,
             isAcross: true,
             symmetrical: true,
-            panelControl: "B",
+            panelControl: "C",
             boardRef: boardRef,
             focusIndex: null,
             focusRow: null,
@@ -363,7 +363,7 @@ class Game extends React.Component {
                         highlightedSquares[i][k] = false;
                     }
                 }
-                else if((i * 15 + j) === this.state.focusIndex) {
+                else if((i * BOARD_SIZE + j) === this.state.focusIndex) {
                     highlightedSquares[i][j] = false;
                 } else if (i === this.state.focusRow && this.state.isAcross) {
                     highlightedSquares[i][j] = true;
@@ -377,12 +377,14 @@ class Game extends React.Component {
     }
 
     handleSuggestionClick = (e, isAcross) => {
+        if (e.target.className !== 'suggestion') return null;
         const word = e.target.textContent;
         const squares = this.getCurrentSquares();
         const index = this.state.focusIndex;
         const new_squares = this.fillWord(index, squares, word, isAcross);
         this.addHistory(new_squares);
         this.setState({isAcross: isAcross})
+        this.focusSquare(index);
     }
 
     fillWord(index, squares, word, isAcross) {
@@ -407,7 +409,7 @@ class Game extends React.Component {
     }
 
     handleBodyClick = (e) => {
-        if (!['square', 'suggestion', 'highlighted-square', 'black-square'].includes(e.target.className)) {
+        if (!['normal-square', 'highlighted-square', 'black-square', 'suggestion', 'suggestion-box'].includes(e.target.className)) {
             this.setState({
                 focusIndex: null,
                 focusRow: null,
@@ -428,7 +430,7 @@ class Game extends React.Component {
                     />
                 </div>
                 <div className={"game"}>
-                    <div className="game-board">
+                    <table className="game-board" style={{width: (33*BOARD_SIZE).toString()+"px"}}>
                         <Board
                             squares={current.squares}
                             onClick={this.handleSquareClick}
@@ -437,7 +439,7 @@ class Game extends React.Component {
                             ref={this.state.boardRef}
                             highlightedSquares={this.getHighlightedSquares(current.squares)}
                         />
-                    </div>
+                    </table>
                     <div className={"panel"}>
                         <Panel
                             panelControl={this.state.panelControl}

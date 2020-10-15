@@ -40,13 +40,13 @@ class Board extends React.Component {
                 cols.push(this.renderSquare(BOARD_SIZE*i+j))
             }
             rows.push(
-                <div className="board-row" key={i}>
+                <tr className="board-row" key={i}>
                     {cols}
-                </div>
+                </tr>
             )
         }
 
-        return rows;
+        return <tbody>{rows}</tbody>;
     }
 }
 
