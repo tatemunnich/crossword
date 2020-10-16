@@ -17,7 +17,7 @@ class Game extends React.Component {
             stepNumber: 0,
             isAcross: true,
             symmetrical: true,
-            panelControl: "C",
+            panelControl: "Help",
             boardRef: boardRef,
             panelRef: panelRef,
             focusIndex: null,
@@ -105,6 +105,31 @@ class Game extends React.Component {
         }
 
         return labels;
+    }
+
+    getWordListHelper(squares) {
+        const acrossWords = [];
+        for (let row of squares) {
+            let word = "";
+            for (let letter of row) {
+                if (letter !== ".") {
+                    word = word + letter;
+                } else if (word) {
+                    acrossWords.push(word);
+                    word = "";
+                }
+            }
+            if (word) {
+                acrossWords.push(word);
+                word = "";
+            }
+        }
+        return (acrossWords);
+    }
+
+    getWordList(squares) {
+        const transpose_squares = this.transposeArray(squares);
+        return this.getWordListHelper(squares).concat(this.getWordListHelper(transpose_squares));
     }
 
     getForwardIndex(currentIndex) {
@@ -340,43 +365,63 @@ class Game extends React.Component {
         }
     }
 
-    getHighlightedSquares(squares) {
-        const acrossHighlights = this.getHighlightedSquaresHelper(squares);
-        const transposeSquares = this.transposeArray(acrossHighlights);
-        const downHighlights = this.transposeArray(transposeSquares);
-        let highlights = acrossHighlights.slice();
-
-        for (let i = 0; i<BOARD_SIZE; i++) {
-            for (let j = 0; j<BOARD_SIZE; j++) {
-                if (acrossHighlights[i][j] === 'H' || downHighlights[i][j] === 'H') {
-                    highlights[i][j] = true;
-                }
-            }
+    getHighlightedSquares() {
+        let highlightedSquares = [];
+        const squares = this.getCurrentSquares();
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            highlightedSquares.push(Array(BOARD_SIZE).fill(false));
         }
-        return highlights;
-    }
 
-    getHighlightedSquaresHelper() {
-        let highlightedSquares = this.fill2dArray(false);
-        let squares = this.getCurrentSquares();
+        let highlightIsTrue = true;
+        let hasHitFocus = false;
 
-        for (let i = 0; i<BOARD_SIZE; i++) {
-            for (let j = 0; j<BOARD_SIZE; j++) {
-                if (squares[i][j] === '.') {
-                    for (let k = 0; k<j; k++) {
-                        highlightedSquares[i][k] = false;
+        if (this.state.isAcross) {
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (!hasHitFocus) {
+                        highlightIsTrue = true;
+                    }
+                    if (squares[i][j] === '.') {
+                        highlightIsTrue = false;
+                        if (!hasHitFocus) {
+                            for (let k = 0; k < j; k++) {
+                                highlightedSquares[i][k] = false;
+                            }
+                        }
+                    }
+                    if (i * BOARD_SIZE + j === this.state.focusIndex) {
+                        highlightedSquares[i][j] = false;
+                        hasHitFocus = true;
+                    } else if (i === this.state.focusRow && highlightIsTrue) {
+                        highlightedSquares[i][j] = true;
                     }
                 }
-                else if((i * BOARD_SIZE + j) === this.state.focusIndex) {
-                    highlightedSquares[i][j] = false;
-                } else if (i === this.state.focusRow && this.state.isAcross) {
-                    highlightedSquares[i][j] = true;
-                } else if (j === this.state.focusCol && !this.state.isAcross) {
-                    highlightedSquares[i][j] = true;
-                }
             }
         }
 
+        else if (!this.state.isAcross) {
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (!hasHitFocus) {
+                        highlightIsTrue = true;
+                    }
+                    if (squares[i][j] === '.' && j ===this.state.focusCol) {
+                        highlightIsTrue = false;
+                        if (!hasHitFocus) {
+                            for (let k = 0; k < i; k++) {
+                                highlightedSquares[k][j] = false;
+                            }
+                        }
+                    }
+                    if (i * BOARD_SIZE + j === this.state.focusIndex) {
+                        highlightedSquares[i][j] = false;
+                        hasHitFocus = true;
+                    } else if (j === this.state.focusCol && highlightIsTrue) {
+                        highlightedSquares[i][j] = true;
+                    }
+                }
+            }
+        }
         return highlightedSquares;
     }
 
