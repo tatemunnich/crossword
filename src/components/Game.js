@@ -57,8 +57,13 @@ class Game extends React.Component {
 
     focusSquare(i) {
         if (i<BOARD_SIZE**2 && i>=0) {
-            this.state.panelRef.current.children[2].scrollTo(0,0); // TODO: this index will change
-            this.state.panelRef.current.children[4].scrollTo(0,0); // TODO: this index will change
+            let panelContents = this.state.panelRef.current.children[0];
+            let boxes = panelContents.querySelectorAll(".suggestion-box")
+            if (boxes.length) {
+                boxes[0].scrollTo(0,0);
+                boxes[1].scrollTo(0,0);
+            }
+
             const field = this.state.boardRef.current.state.squareRefs[i].current;
             field.focus();
             this.setState({
@@ -490,12 +495,11 @@ class Game extends React.Component {
                             highlightedSquares={this.getHighlightedSquares(current.squares)}
                         />
                     </table>
-                    <div className={"panel"}>
+                    <div className={"panel"} ref={this.state.panelRef}>
                         <Panel
                             panelControl={this.state.panelControl}
                             currentWords={this.getCurrentWords(this.state.focusIndex, current.squares)}
                             onSuggestionClick={this.handleSuggestionClick}
-                            suggestionRef={this.state.panelRef}
                         />
                     </div>
                 </div>

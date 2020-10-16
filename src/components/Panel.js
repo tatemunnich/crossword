@@ -6,18 +6,16 @@ class Panel extends React.Component {
         const panelControl = this.props.panelControl;
         let panelContents;
         if (panelControl === "Help") {
-            panelContents = helpPanel();
+            panelContents = HelpPanel();
         }
         else if (panelControl === "Words") {
-            panelContents = wordsPanel(this.props.currentWords, this.props.onSuggestionClick, this.props.suggestionRef)
+            panelContents = WordsPanel(this.props.currentWords, this.props.onSuggestionClick)
         }
-        return <div>
-            {panelContents}
-        </div>
+        return panelContents
     }
 }
 
-function helpPanel() {
+function HelpPanel() {
     return (
         <div className={"panel-contents"}>
             <h1>Help</h1>
@@ -30,7 +28,7 @@ function helpPanel() {
     )
 }
 
-function wordsPanel(words, onSuggestionClick, ref) {
+function WordsPanel(words, onSuggestionClick) {
     const word_limit = 500;
     const acrossList = search(words[0]).slice(0, word_limit).map((word) =>
         <li
@@ -48,7 +46,7 @@ function wordsPanel(words, onSuggestionClick, ref) {
     );
 
     return (
-        <div className={"panel-contents"} ref={ref}>
+        <div className={"panel-contents"}>
             <h1>Word Suggestions</h1>
             <p>Across</p>
             <div className={"suggestion-box"} onMouseDown={e => onSuggestionClick(e, true)}>
