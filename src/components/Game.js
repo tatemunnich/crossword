@@ -9,6 +9,7 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         const boardRef = React.createRef();
+        const panelRef = React.createRef();
         this.state = {
             history: [{
                 squares: this.fill2dArray(" "),
@@ -18,6 +19,7 @@ class Game extends React.Component {
             symmetrical: true,
             panelControl: "C",
             boardRef: boardRef,
+            panelRef: panelRef,
             focusIndex: null,
             focusRow: null,
             focusCol: null
@@ -55,6 +57,8 @@ class Game extends React.Component {
 
     focusSquare(i) {
         if (i<BOARD_SIZE**2 && i>=0) {
+            this.state.panelRef.current.children[2].scrollTo(0,0); // TODO: this index will change
+            this.state.panelRef.current.children[4].scrollTo(0,0); // TODO: this index will change
             const field = this.state.boardRef.current.state.squareRefs[i].current;
             field.focus();
             this.setState({
@@ -377,6 +381,7 @@ class Game extends React.Component {
     }
 
     handleSuggestionClick = (e, isAcross) => {
+        e.preventDefault();
         if (e.target.className !== 'suggestion') return null;
         const word = e.target.textContent;
         const squares = this.getCurrentSquares();
@@ -445,6 +450,7 @@ class Game extends React.Component {
                             panelControl={this.state.panelControl}
                             currentWords={this.getCurrentWords(this.state.focusIndex, current.squares)}
                             onSuggestionClick={this.handleSuggestionClick}
+                            suggestionRef={this.state.panelRef}
                         />
                     </div>
                 </div>
