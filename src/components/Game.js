@@ -20,7 +20,7 @@ class Game extends React.Component {
             stepNumber: 0,
             isAcross: true,
             symmetrical: true,
-            panelControl: "B",
+            panelControl: "Help",
             boardRef: boardRef,
             focusIndex: null,
             focusRow: null,
@@ -323,6 +323,7 @@ class Game extends React.Component {
                 }
             }
         }
+
         else if (!this.state.isAcross) {
             for (let i = 0; i < BOARD_SIZE; i++) {
                 for (let j = 0; j < BOARD_SIZE; j++) {
