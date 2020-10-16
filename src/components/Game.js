@@ -485,7 +485,7 @@ class Game extends React.Component {
                     />
                 </div>
                 <div className={"game"}>
-                    <table className="game-board" style={{width: (33*BOARD_SIZE).toString()+"px"}}>
+                    <table className="game-board" style={{width: (34*BOARD_SIZE).toString()+"px"}}>
                         <Board
                             squares={current.squares}
                             onClick={this.handleSquareClick}
