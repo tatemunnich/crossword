@@ -19,6 +19,10 @@ body {
 
 .game-board {
   border-collapse: collapse;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
 }
 
 .black-square {
@@ -48,9 +52,13 @@ body {
   width: 34px;
 }
 
+.normal-square::selection, .black-square::selection, .highlighted-square::selection {
+  background-color: transparent;
+}
+
 .black-square:focus {
   outline: none;
-  border: 3px inset #91c8ff;
+  background: #444;
 }
 
 .normal-square:focus {
