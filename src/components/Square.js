@@ -33,7 +33,7 @@ class Square extends React.Component {
                     : null
                 }
                 <div
-                    tabIndex={this.props.index === 0 ? "auto" : -1}
+                    tabIndex={-1}
                     className={this.classStyle()}
                     id={this.props.index}
                     onKeyDown={this.props.onKeyDown}

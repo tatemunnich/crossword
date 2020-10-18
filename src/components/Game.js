@@ -17,7 +17,7 @@ class Game extends React.Component {
             stepNumber: 0,
             isAcross: true,
             symmetrical: true,
-            panelControl: "Help",
+            panelControl: "Words",
             boardRef: boardRef,
             panelRef: panelRef,
             focusIndex: null,
@@ -228,6 +228,16 @@ class Game extends React.Component {
         return [acrossWord, downWord];
     }
 
+    getCurrentWordLabels(index, squares) {
+        if (index === null) return ["",""]
+        const labels = this.getLabelList(squares);
+        const acrossStart = this.getStartPosition(index, squares, true);
+        const downStart = this.getStartPosition(index, squares, false);
+        const acrossLabel = labels[acrossStart[0]][acrossStart[1]]
+        const downLabel = labels[downStart[0]][downStart[1]]
+        return [acrossLabel, downLabel]
+    }
+
     toggleBlackSquare(index, squares) {
         const row = Math.floor(index/BOARD_SIZE);
         const column = index % BOARD_SIZE;
@@ -355,6 +365,9 @@ class Game extends React.Component {
             this.undo();
         } else if (value==="reset") {
             this.reset();
+        }  else if (value==="symmetry") {
+            const sym = this.state.symmetrical;
+            this.setState({symmetrical: !sym});
         } else {
             this.setState({panelControl: value});
         }
@@ -482,6 +495,7 @@ class Game extends React.Component {
                 <div className={"menu"}>
                     <Menu
                         onClick={this.handleMenuClick}
+                        symmetrical={this.state.symmetrical}
                     />
                 </div>
                 <div className={"game"}>
@@ -500,6 +514,7 @@ class Game extends React.Component {
                             panelControl={this.state.panelControl}
                             currentWords={this.getCurrentWords(this.state.focusIndex, current.squares)}
                             onSuggestionClick={this.handleSuggestionClick}
+                            currentWordLabels={this.getCurrentWordLabels(this.state.focusIndex, current.squares)}
                         />
                     </div>
                 </div>
