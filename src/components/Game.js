@@ -46,6 +46,10 @@ class Game extends React.Component {
         return JSON.parse(JSON.stringify(current.squares.slice())); // creates a deep copy
     }
 
+    /**
+     * Adds square array to the history list, making it the current state of the game
+     * @param {string[][]} squares
+     */
     addHistory(squares) {
         const history = this.state.history;
         this.setState({
@@ -56,13 +60,17 @@ class Game extends React.Component {
         });
     }
 
+    /**
+     * Focuses square at index i, updates state
+     * @param {int} i
+     */
     focusSquare(i) {
         if (i<BOARD_SIZE**2 && i>=0) {
             let panelContents = this.state.panelRef.current.children[0];
             let boxes = panelContents.querySelectorAll(".suggestion-box")
             if (boxes.length) {
                 boxes[0].scrollTo(0,0);
-                boxes[1].scrollTo(0,0);
+                boxes[1].scrollTo(0,0);  // scroll suggestion lists to the top
             }
 
             const field = this.state.boardRef.current.state.squareRefs[i].current;
@@ -94,6 +102,11 @@ class Game extends React.Component {
         return labels;
     }
 
+    /**
+     * Generates a 2d array of labels for grid squares, returns array of number strings, empty string if no label
+     * @param squares {string[][]}
+     * @returns labels {string[][]}
+     */
     getLabelList(squares) {
         const acrossLabels = this.getLabelListHelper(squares);
         const transpose_squares = this.transposeArray(squares);
@@ -133,11 +146,21 @@ class Game extends React.Component {
         return (acrossWords);
     }
 
+    /**
+     * Generates a list of all of the words, across and down from a given grid
+     * @param squares {string[][]}
+     * @returns words {string[]}
+     */
     getWordList(squares) {
         const transpose_squares = this.transposeArray(squares);
         return this.getWordListHelper(squares).concat(this.getWordListHelper(transpose_squares));
     }
 
+    /**
+     * Returns index value for moving forward one square, or the same square if nowhere to move forward
+     * @param currentIndex {int}
+     * @returns {int}
+     */
     getForwardIndex(currentIndex) {
         if (this.state.isAcross && currentIndex%BOARD_SIZE!==BOARD_SIZE-1) {
             return currentIndex+1;
@@ -148,6 +171,11 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Returns index value for moving backward one square, or the same square if nowhere to move backward
+     * @param currentIndex {int}
+     * @returns {int}
+     */
     getBackwardIndex(currentIndex) {
         if (this.state.isAcross && currentIndex%BOARD_SIZE!==0) {
            return currentIndex-1;
@@ -158,6 +186,13 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Returns the [row, column] of the start of the word containing letter at index, across or down depending on isAcross value
+     * @param index {int}
+     * @param squares {string[][]}
+     * @param isAcross {boolean}
+     * @returns {int[]}
+     */
     getStartPosition(index, squares, isAcross) {
         let row = Math.floor(index/BOARD_SIZE);
         let column = index%BOARD_SIZE;
@@ -180,6 +215,13 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Returns the [row, column] of the end of the word containing letter at index, across or down depending on isAcross value
+     * @param index {int}
+     * @param squares {string[][]}
+     * @param isAcross {boolean}
+     * @returns {int[]}
+     */
     getEndPosition(index, squares, isAcross) {
         let row = Math.floor(index/BOARD_SIZE);
         let column = index%BOARD_SIZE;
@@ -219,6 +261,12 @@ class Game extends React.Component {
         return word;
     }
 
+    /**
+     * Returns [acrossWord, downWord] that both contain the square at index
+     * @param index {int|null}
+     * @param squares {string[][]}
+     * @returns {string[]}
+     */
     getCurrentWords(index, squares) {
         if (index===null) return ["",""]
 
@@ -229,6 +277,12 @@ class Game extends React.Component {
         return [acrossWord, downWord];
     }
 
+    /**
+     * Returns [acrossLabel, downLabel] of the words that intersect square at index
+     * @param index {int|null}
+     * @param squares {string[][]}
+     * @returns {string[]}
+     */
     getCurrentWordLabels(index, squares) {
         if (index === null) return ["",""]
         const labels = this.getLabelList(squares);
@@ -239,6 +293,12 @@ class Game extends React.Component {
         return [acrossLabel, downLabel]
     }
 
+    /**
+     * Returns a new grid that will toggle the black square at index, and its mirror if symmetry is on
+     * @param index {int}
+     * @param squares {string[][]}
+     * @returns {string[][]}
+     */
     toggleBlackSquare(index, squares) {
         const row = Math.floor(index/BOARD_SIZE);
         const column = index % BOARD_SIZE;
@@ -251,6 +311,11 @@ class Game extends React.Component {
         return squares
     }
 
+    /**
+     * Function for handling arrow key presses
+     * @param {string} input
+     * @param {int} index
+     */
     handleArrowKey(input, index) {
         if (this.state.isAcross) {
             switch (input) {
@@ -278,6 +343,10 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Function for handling keyboard presses
+     * @param e
+     */
     handleKeyDown = (e) => {
         const input = e.key;
         const index = parseInt(e.target.id);
@@ -335,6 +404,9 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Removes last element of history to undo previous change
+     */
     undo() {
         const stepNumber = this.state.stepNumber;
         const history = this.state.history.slice();
@@ -347,6 +419,9 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Resets history to original state
+     */
     reset() {
         const history = this.state.history.slice();
         this.setState({
@@ -356,7 +431,7 @@ class Game extends React.Component {
     }
 
     /**
-     * Function for handling menu button clicks.
+     * Function for handling menu button clicks
      * @param e
      */
     handleMenuClick = (e) => {
@@ -377,6 +452,10 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Function for handling square clicks
+     * @param e
+     */
     handleSquareClick = (e) => {
         const index = parseInt(e.target.id);
         if (this.state.focusIndex === index) {
@@ -387,6 +466,10 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Returns a 2d array with true and false values used to highlight the current word
+     * @returns {boolean[][]}
+     */
     getHighlightedSquares() {
         let highlightedSquares = this.fill2dArray();
         const squares = this.getCurrentSquares();
@@ -427,9 +510,14 @@ class Game extends React.Component {
         return highlightedSquares;
     }
 
+    /**
+     * Function for filling suggestion onto grid
+     * @param e
+     * @param isAcross
+     */
     handleSuggestionClick = (e, isAcross) => {
         e.preventDefault();
-        if (e.target.className !== 'suggestion') return null;
+        if (e.target.className !== 'suggestion') return;
         const word = e.target.textContent;
         const squares = this.getCurrentSquares();
         const index = this.state.focusIndex;
@@ -439,6 +527,14 @@ class Game extends React.Component {
         this.focusSquare(index);
     }
 
+    /**
+     * Returns a new grid that fills the across or down word that goes through the square at index
+     * @param {int} index
+     * @param {string[][]} squares
+     * @param {string} word - word to be inserted
+     * @param {boolean} isAcross
+     * @returns {string[][]}
+     */
     fillWord(index, squares, word, isAcross) {
         const [start_row, start_column] = this.getStartPosition(index, squares, isAcross);
         const [end_row, end_column] = this.getEndPosition(index, squares, isAcross);
@@ -460,6 +556,10 @@ class Game extends React.Component {
         return squares
     }
 
+    /**
+     * Removes focus from square if there is a click outside of the grid
+     * @param e
+     */
     handleBodyClick = (e) => {
         if (!['normal-square', 'highlighted-square', 'black-square', 'suggestion', 'suggestion-box'].includes(e.target.className)) {
             this.setState({
@@ -490,7 +590,7 @@ class Game extends React.Component {
                             labels={this.getLabelList(current.squares)}
                             onKeyDown={this.handleKeyDown}
                             ref={this.state.boardRef}
-                            highlightedSquares={this.getHighlightedSquares(current.squares)}
+                            highlightedSquares={this.getHighlightedSquares()}
                         />
                     </table>
                     <div className={"panel"} ref={this.state.panelRef}>
