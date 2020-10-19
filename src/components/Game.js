@@ -365,9 +365,16 @@ class Game extends React.Component {
             this.undo();
         } else if (value==="reset") {
             this.reset();
-        }  else if (value==="symmetry") {
-            const sym = this.state.symmetrical;
-            this.setState({symmetrical: !sym});
+        } else if (value==="toggle-symmetry") {
+            const btn = document.getElementById("toggle-symmetry")
+            if (this.state.symmetrical) {
+                this.setState({symmetrical: false})
+                btn.innerText = "Symmetry: Off";
+            }
+            else {
+                this.setState({symmetrical: true})
+                btn.innerHTML = "Symmetry: On";
+            }
         } else {
             this.setState({panelControl: value});
         }
@@ -384,59 +391,39 @@ class Game extends React.Component {
     }
 
     getHighlightedSquares() {
-        let highlightedSquares = [];
+        let highlightedSquares = this.fill2dArray();
         const squares = this.getCurrentSquares();
-        for (let i = 0; i < BOARD_SIZE; i++) {
-            highlightedSquares.push(Array(BOARD_SIZE).fill(false));
-        }
-
         let highlightIsTrue = true;
         let hasHitFocus = false;
 
-        if (this.state.isAcross) {
-            for (let i = 0; i < BOARD_SIZE; i++) {
-                for (let j = 0; j < BOARD_SIZE; j++) {
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                if (!hasHitFocus) {
+                    highlightIsTrue = true;
+                }
+                if (squares[i][j] === '.' && i === this.state.focusRow && this.state.isAcross) {
+                    highlightIsTrue = false;
                     if (!hasHitFocus) {
-                        highlightIsTrue = true;
-                    }
-                    if (squares[i][j] === '.') {
-                        highlightIsTrue = false;
-                        if (!hasHitFocus) {
-                            for (let k = 0; k < j; k++) {
-                                highlightedSquares[i][k] = false;
-                            }
+                        for (let k = 0; k < j; k++) {
+                            highlightedSquares[i][k] = false;
                         }
-                    }
-                    if (i * BOARD_SIZE + j === this.state.focusIndex) {
-                        highlightedSquares[i][j] = false;
-                        hasHitFocus = true;
-                    } else if (i === this.state.focusRow && highlightIsTrue) {
-                        highlightedSquares[i][j] = true;
                     }
                 }
-            }
-        }
-
-        else if (!this.state.isAcross) {
-            for (let i = 0; i < BOARD_SIZE; i++) {
-                for (let j = 0; j < BOARD_SIZE; j++) {
+                else if (squares[i][j] === '.' && j === this.state.focusCol && !this.state.isAcross) {
+                    highlightIsTrue = false;
                     if (!hasHitFocus) {
-                        highlightIsTrue = true;
-                    }
-                    if (squares[i][j] === '.' && j ===this.state.focusCol) {
-                        highlightIsTrue = false;
-                        if (!hasHitFocus) {
-                            for (let k = 0; k < i; k++) {
-                                highlightedSquares[k][j] = false;
-                            }
+                        for (let k = 0; k < i; k++) {
+                            highlightedSquares[k][j] = false;
                         }
                     }
-                    if (i * BOARD_SIZE + j === this.state.focusIndex) {
-                        highlightedSquares[i][j] = false;
-                        hasHitFocus = true;
-                    } else if (j === this.state.focusCol && highlightIsTrue) {
-                        highlightedSquares[i][j] = true;
-                    }
+                }
+                if (i * BOARD_SIZE + j === this.state.focusIndex) {
+                    highlightedSquares[i][j] = false;
+                    hasHitFocus = true;
+                } else if (i === this.state.focusRow && highlightIsTrue && this.state.isAcross) {
+                    highlightedSquares[i][j] = true;
+                } else if (j === this.state.focusCol && highlightIsTrue && !this.state.isAcross) {
+                    highlightedSquares[i][j] = true;
                 }
             }
         }
@@ -495,7 +482,7 @@ class Game extends React.Component {
                 <div className={"menu"}>
                     <Menu
                         onClick={this.handleMenuClick}
-                        symmetrical={this.state.symmetrical}
+                        toggleSymmetry={this.toggleSymmetry}
                     />
                 </div>
                 <div className={"game"}>

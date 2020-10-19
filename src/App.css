@@ -36,7 +36,7 @@ body {
 }
 
 .highlighted-square {
-  background-color: #bfc4d6;
+  background-color: #c9e4ff;
   font-size: 22px;
 }
 
@@ -70,19 +70,28 @@ body {
   display: flex;
   flex-direction: row;
   margin-bottom: 20px;
+  width: 495px;
 }
 
 .menubar {
   display: flex;
   flex-direction: row;
-}
-
-.menubar-right{
-  margin-left: 120px;
+  width: 495px;
+  justify-content: space-between;
 }
 
 .menu-button {
   margin-right: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: white;
+  font: 14px "Century Gothic", Futura, sans-serif;
+  outline: none;
+  padding: 8px;
+}
+
+.menu-button:hover {
+  background-color: #c9e4ff;
 }
 
 .square {
@@ -113,12 +122,21 @@ body {
   flex-direction: row;
 }
 
+/*.panel-contents {*/
+/*  width: 260px;*/
+/*  border-style: solid;*/
+/*  border-radius: 8px;*/
+/*  background-color: #dddddd;*/
+/*  border-color: #bfbfbf;*/
+/*  margin-left: 40px;*/
+/*  width: 260px;*/
+/*  height: 360px;*/
+/*  padding: 20px;*/
+/*  text-align: left;*/
+/*}*/
+
 .panel-contents {
-  width: 260px;
-  border-style: solid;
-  margin-left: 40px;
-  height: 360px;
-  padding: 20px;
+  text-align: left;
 }
 
 .suggestion-panel {
