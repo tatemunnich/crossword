@@ -21,8 +21,10 @@ function HelpPanel() {
             <p>Click on a square to enter a letter.</p>
             <p>Clear a square with backspace.</p>
             <p>Move around the board with the arrow keys.</p>
-            <p>To toggle a black square, select the square and press the "." key.</p>
+            <p>Toggle black squares with the "." key.</p>
             <p>Click the "Words" button to view word suggestions.</p>
+            <p>"Symmetry" controls whether a new black square is mirrored.</p>
+            <p>Press "Generate Pattern" to load a random blank board.</p>
         </div>
     )
 }
@@ -48,7 +50,7 @@ function WordsPanel(words, labels, onSuggestionClick) {
         <div className={"suggestion-panel"}>
             <div className={"suggestion-word"}>
                 <h3>{labels[0]} across</h3>
-                <h5>{words[0].replaceAll(" ", "-")}</h5>
+                <h4>{words[0].replaceAll(" ", "-")}</h4>
             </div>
             <div className={"suggestion-box"} onMouseDown={e => onSuggestionClick(e, true)}>
                 {acrossList}
@@ -56,7 +58,7 @@ function WordsPanel(words, labels, onSuggestionClick) {
             <hr/>
             <div className={"suggestion-word"}>
                 <h3>{labels[1]} down</h3>
-                <h5>{words[1].replaceAll(" ", "-")}</h5>
+                <h4>{words[1].replaceAll(" ", "-")}</h4>
             </div>
             <div className={"suggestion-box"} onMouseDown={e => onSuggestionClick(e, false)}>
                 {downList}

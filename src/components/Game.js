@@ -103,11 +103,11 @@ class Game extends React.Component {
     }
 
     /**
-     * Generates a 2d array of labels for grid squares, returns array of number strings, empty string if no label
-     * @param squares {string[][]}
+     * Generates a 2d array of labels for current squares, returns array of number strings, empty string if no label
      * @returns labels {string[][]}
      */
-    getLabelList(squares) {
+    getLabelList() {
+        const squares = this.getCurrentSquares();
         const acrossLabels = this.getLabelListHelper(squares);
         const transpose_squares = this.transposeArray(squares);
         const downLabels = this.transposeArray(this.getLabelListHelper(transpose_squares));
@@ -264,12 +264,12 @@ class Game extends React.Component {
     /**
      * Returns [acrossWord, downWord] that both contain the square at index
      * @param index {int|null}
-     * @param squares {string[][]}
      * @returns {string[]}
      */
-    getCurrentWords(index, squares) {
+    getCurrentWords(index) {
         if (index===null) return ["",""]
 
+        const squares = this.getCurrentSquares();
         const row = Math.floor(index/BOARD_SIZE);
         const column = index % BOARD_SIZE;
         const acrossWord = this.getCurrentWordsHelper(row, column, squares);
@@ -280,12 +280,12 @@ class Game extends React.Component {
     /**
      * Returns [acrossLabel, downLabel] of the words that intersect square at index
      * @param index {int|null}
-     * @param squares {string[][]}
      * @returns {string[]}
      */
-    getCurrentWordLabels(index, squares) {
+    getCurrentWordLabels(index) {
         if (index === null) return ["",""]
-        const labels = this.getLabelList(squares);
+        const squares = this.getCurrentSquares();
+        const labels = this.getLabelList();
         const acrossStart = this.getStartPosition(index, squares, true);
         const downStart = this.getStartPosition(index, squares, false);
         const acrossLabel = labels[acrossStart[0]][acrossStart[1]]
@@ -401,6 +401,13 @@ class Game extends React.Component {
 
         } else if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(input)) { // an arrow key was pressed
             this.handleArrowKey(input, index);
+
+        } else if (input === "Tab") {
+            this.setState({
+                focusIndex: null,
+                focusRow: null,
+                focusCol: null
+            });
         }
     }
 
@@ -561,19 +568,21 @@ class Game extends React.Component {
      * @param e
      */
     handleBodyClick = (e) => {
+        console.log(e.target.className)
         if (!['normal-square', 'highlighted-square', 'black-square', 'suggestion', 'suggestion-box'].includes(e.target.className)) {
             this.setState({
                 focusIndex: null,
                 focusRow: null,
                 focusCol: null
             })
+            if (e.target.className==="menu-button") {
+                e.preventDefault();
+                e.target.blur();
+            }
         }
     }
 
     render() {
-        const history = this.state.history;
-        const current = history[history.length - 1];
-
         return (
             <div className="body" onMouseDown={this.handleBodyClick}>
                 <div className={"menu"}>
@@ -585,9 +594,9 @@ class Game extends React.Component {
                 <div className={"game"}>
                     <table className="game-board" style={{width: (34*BOARD_SIZE).toString()+"px"}}>
                         <Board
-                            squares={current.squares}
+                            squares={this.getCurrentSquares()}
                             onClick={this.handleSquareClick}
-                            labels={this.getLabelList(current.squares)}
+                            labels={this.getLabelList()}
                             onKeyDown={this.handleKeyDown}
                             ref={this.state.boardRef}
                             highlightedSquares={this.getHighlightedSquares()}
@@ -596,9 +605,9 @@ class Game extends React.Component {
                     <div className={"panel"} ref={this.state.panelRef}>
                         <Panel
                             panelControl={this.state.panelControl}
-                            currentWords={this.getCurrentWords(this.state.focusIndex, current.squares)}
+                            currentWords={this.getCurrentWords(this.state.focusIndex)}
                             onSuggestionClick={this.handleSuggestionClick}
-                            currentWordLabels={this.getCurrentWordLabels(this.state.focusIndex, current.squares)}
+                            currentWordLabels={this.getCurrentWordLabels(this.state.focusIndex)}
                         />
                     </div>
                 </div>
