@@ -10,7 +10,7 @@ class Menu extends React.Component {
                 <div className={"menubar-left"}>
                     <button className={"menu-button"} value={"Help"} onClick={this.props.onClick}>Help</button>
                     <button className={"menu-button"} value={"Words"} onClick={this.props.onClick}>Words</button>
-                    <button className={"menu-button"} value={"symmetry"} onClick={this.props.onClick}>Turn symmetry {this.props.symmetrical? "off" : "on"}</button>
+                    <button className={"menu-button"} value={"symmetry"} onClick={this.props.onClick}>Symmetry: {this.props.symmetrical? "On" : "Off"}</button>
                     <button className={"menu-button"} value={"pattern"} onClick={this.props.onClick}>Generate Pattern</button>
                 </div>
                 <div className={"menubar-right"}>

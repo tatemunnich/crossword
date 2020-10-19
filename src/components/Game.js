@@ -388,59 +388,39 @@ class Game extends React.Component {
     }
 
     getHighlightedSquares() {
-        let highlightedSquares = [];
+        let highlightedSquares = this.fill2dArray();
         const squares = this.getCurrentSquares();
-        for (let i = 0; i < BOARD_SIZE; i++) {
-            highlightedSquares.push(Array(BOARD_SIZE).fill(false));
-        }
-
         let highlightIsTrue = true;
         let hasHitFocus = false;
 
-        if (this.state.isAcross) {
-            for (let i = 0; i < BOARD_SIZE; i++) {
-                for (let j = 0; j < BOARD_SIZE; j++) {
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                if (!hasHitFocus) {
+                    highlightIsTrue = true;
+                }
+                if (squares[i][j] === '.' && i === this.state.focusRow && this.state.isAcross) {
+                    highlightIsTrue = false;
                     if (!hasHitFocus) {
-                        highlightIsTrue = true;
-                    }
-                    if (squares[i][j] === '.') {
-                        highlightIsTrue = false;
-                        if (!hasHitFocus) {
-                            for (let k = 0; k < j; k++) {
-                                highlightedSquares[i][k] = false;
-                            }
+                        for (let k = 0; k < j; k++) {
+                            highlightedSquares[i][k] = false;
                         }
-                    }
-                    if (i * BOARD_SIZE + j === this.state.focusIndex) {
-                        highlightedSquares[i][j] = false;
-                        hasHitFocus = true;
-                    } else if (i === this.state.focusRow && highlightIsTrue) {
-                        highlightedSquares[i][j] = true;
                     }
                 }
-            }
-        }
-
-        else if (!this.state.isAcross) {
-            for (let i = 0; i < BOARD_SIZE; i++) {
-                for (let j = 0; j < BOARD_SIZE; j++) {
+                else if (squares[i][j] === '.' && j === this.state.focusCol && !this.state.isAcross) {
+                    highlightIsTrue = false;
                     if (!hasHitFocus) {
-                        highlightIsTrue = true;
-                    }
-                    if (squares[i][j] === '.' && j ===this.state.focusCol) {
-                        highlightIsTrue = false;
-                        if (!hasHitFocus) {
-                            for (let k = 0; k < i; k++) {
-                                highlightedSquares[k][j] = false;
-                            }
+                        for (let k = 0; k < i; k++) {
+                            highlightedSquares[k][j] = false;
                         }
                     }
-                    if (i * BOARD_SIZE + j === this.state.focusIndex) {
-                        highlightedSquares[i][j] = false;
-                        hasHitFocus = true;
-                    } else if (j === this.state.focusCol && highlightIsTrue) {
-                        highlightedSquares[i][j] = true;
-                    }
+                }
+                if (i * BOARD_SIZE + j === this.state.focusIndex) {
+                    highlightedSquares[i][j] = false;
+                    hasHitFocus = true;
+                } else if (i === this.state.focusRow && highlightIsTrue && this.state.isAcross) {
+                    highlightedSquares[i][j] = true;
+                } else if (j === this.state.focusCol && highlightIsTrue && !this.state.isAcross) {
+                    highlightedSquares[i][j] = true;
                 }
             }
         }

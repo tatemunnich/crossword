@@ -17,12 +17,12 @@ class Panel extends React.Component {
 function HelpPanel() {
     return (
         <div className={"panel-contents"}>
-            <h1>Help</h1>
-            <p>Click on a square to enter a letter</p>
-            <p>Clear a square with backspace</p>
-            <p>Move around the board with the arrow keys</p>
-            <p>To toggle a black square, select the square and press the "." key</p>
-            <p>For help creating words, click the "Words" button in the menu</p>
+            <h3>Help</h3>
+            <p>Click on a square to enter a letter.</p>
+            <p>Clear a square with backspace.</p>
+            <p>Move around the board with the arrow keys.</p>
+            <p>To toggle a black square, select the square and press the "." key.</p>
+            <p>Click the "Words" button to view word suggestions.</p>
         </div>
     )
 }
