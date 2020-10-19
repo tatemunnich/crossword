@@ -70,13 +70,12 @@ body {
   display: flex;
   flex-direction: row;
   margin-bottom: 20px;
-  width: 495px;
 }
 
 .menubar {
   display: flex;
   flex-direction: row;
-  width: 495px;
+  width: 625px;
   justify-content: space-between;
 }
 
@@ -90,7 +89,7 @@ body {
   padding: 8px;
 }
 
-.menu-button:hover {
+.menu-button:hover, .menu-button:focus {
   background-color: #c9e4ff;
 }
 
@@ -146,6 +145,11 @@ body {
 
 .game-info {
   margin-left: 20px;
+}
+
+hr {
+  border-top: 1px solid black;
+  border-bottom: none;
 }
 
 .suggestion-box {

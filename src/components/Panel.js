@@ -53,7 +53,7 @@ function WordsPanel(words, labels, onSuggestionClick) {
             <div className={"suggestion-box"} onMouseDown={e => onSuggestionClick(e, true)}>
                 {acrossList}
             </div>
-
+            <hr/>
             <div className={"suggestion-word"}>
                 <h3>{labels[1]} down</h3>
                 <h5>{words[1].replaceAll(" ", "-")}</h5>
