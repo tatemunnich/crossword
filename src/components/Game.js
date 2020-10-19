@@ -2,6 +2,7 @@ import React from 'react';
 import Board from "./Board";
 import Menu from "./Menu";
 import Panel from "./Panel";
+import patterns from "../resources/patterns";
 
 export const BOARD_SIZE = 15;
 
@@ -365,9 +366,12 @@ class Game extends React.Component {
             this.undo();
         } else if (value==="reset") {
             this.reset();
-        }  else if (value==="symmetry") {
+        } else if (value==="symmetry") {
             const sym = this.state.symmetrical;
             this.setState({symmetrical: !sym});
+        } else if (value==="pattern") {
+            this.addHistory(patterns[Math.floor(Math.random() * patterns.length)]);
+            // gets random pattern https://stackoverflow.com/a/5915122
         } else {
             this.setState({panelControl: value});
         }
