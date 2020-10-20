@@ -140,6 +140,23 @@ body {
   text-align: left;
 }
 
+.word-length-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 5em);
+}
+
+.letter-count-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 3.5em);
+}
+
+dt {
+  float: left;
+  /*font-weight: bold;*/
+  text-align: right;
+  width: 2.5em;
+}
+
 .suggestion-panel {
   margin: 0;
   text-align: left;

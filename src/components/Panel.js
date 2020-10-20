@@ -9,6 +9,8 @@ class Panel extends React.Component {
             panelContents = HelpPanel();
         } else if (panelControl === "Words") {
             panelContents = WordsPanel(this.props.currentWords, this.props.currentWordLabels, this.props.onSuggestionClick)
+        } else if (panelControl === "Stats") {
+            panelContents = StatsPanel(this.props.stats)
         }
         return panelContents
     }
@@ -27,6 +29,37 @@ function HelpPanel() {
             <p>Press "Generate Pattern" to load a random blank board.</p>
         </div>
     )
+}
+
+function StatsPanel(stats) {
+    const lengthList = Object.keys(stats.wordLengths).map(key =>
+        <div style={{color: (key<3 && stats.wordLengths[key]>0)? "red":"black"}}>
+            <dt>{key}: </dt>
+            <dd>
+                {stats.wordLengths[key]}
+            </dd>
+        </div>
+    );
+
+    const letterList = Object.keys(stats.letterCounts).map(key =>
+        <div>
+            <dt>{key}: </dt>
+            <dd>
+                {stats.letterCounts[key]}
+            </dd>
+        </div>
+    );
+
+    return <div className={"panel-contents"}>
+        <h3>Stats</h3>
+        <p><strong># words:</strong> {stats.numWords}</p>
+        <p><strong># letters:</strong> {stats.letterTotal}</p>
+        <p><strong># black squares:</strong> {stats.blackCount} ({stats.blackPercent}%)</p>
+        <p style={{fontWeight: "bold"}}>Word counts</p>
+        <div className={"word-length-stats"}>{lengthList}</div>
+        <p style={{fontWeight: "bold"}}>Letter counts</p>
+        <div className={"letter-count-stats"}>{letterList}</div>
+    </div>;
 }
 
 function WordsPanel(words, labels, onSuggestionClick) {

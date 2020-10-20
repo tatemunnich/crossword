@@ -148,10 +148,10 @@ class Game extends React.Component {
 
     /**
      * Generates a list of all of the words, across and down from a given grid
-     * @param squares {string[][]}
      * @returns words {string[]}
      */
-    getWordList(squares) {
+    getWordList() {
+        const squares = this.getCurrentSquares();
         const transpose_squares = this.transposeArray(squares);
         return this.getWordListHelper(squares).concat(this.getWordListHelper(transpose_squares));
     }
@@ -568,18 +568,61 @@ class Game extends React.Component {
      * @param e
      */
     handleBodyClick = (e) => {
-        console.log(e.target.className)
         if (!['normal-square', 'highlighted-square', 'black-square', 'suggestion', 'suggestion-box'].includes(e.target.className)) {
-            this.setState({
-                focusIndex: null,
-                focusRow: null,
-                focusCol: null
-            })
             if (e.target.className==="menu-button") {
                 e.preventDefault();
                 e.target.blur();
+            } else {
+                this.setState({
+                    focusIndex: null,
+                    focusRow: null,
+                    focusCol: null
+                });
             }
         }
+    }
+
+    /**
+     * Calculates stats for stats panel
+     * @returns {{letterCounts: {}, blackPercent: string,
+     *            blackCount: int, wordLengths: {},
+     *            numWords: int, letterTotal: int}}
+     */
+    calculateStats() {
+        const allWords = this.getWordList();
+        const numWords = allWords.length;
+        let wordLengths = {};
+
+        for (let i=1; i<=BOARD_SIZE; i++) {
+            wordLengths[i]=0;
+        }
+        for (const word of allWords) {
+            const wordLength = word.length;
+            wordLengths[wordLength]++;
+        }
+
+        const squares = this.getCurrentSquares();
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        let letterCounts = {};
+        let blackCount = 0;
+
+        for (const letter of alphabet) {
+            letterCounts[letter] = 0;
+        }
+        for (const row of squares) {
+            for (const letter of row) {
+                if (letter === ".") {
+                    blackCount++;
+                } else if (alphabet.includes(letter)) {
+                    letterCounts[letter]++;
+                }
+            }
+        }
+        const letterTotal = BOARD_SIZE**2 - blackCount;
+
+        const blackPercent = (100*blackCount/(BOARD_SIZE**2)).toFixed(2);
+
+        return {wordLengths, numWords, letterCounts, letterTotal, blackCount, blackPercent};
     }
 
     render() {
@@ -606,6 +649,7 @@ class Game extends React.Component {
                         <Panel
                             panelControl={this.state.panelControl}
                             currentWords={this.getCurrentWords(this.state.focusIndex)}
+                            stats={this.calculateStats()}
                             onSuggestionClick={this.handleSuggestionClick}
                             currentWordLabels={this.getCurrentWordLabels(this.state.focusIndex)}
                         />
