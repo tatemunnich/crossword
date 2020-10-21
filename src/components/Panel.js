@@ -1,5 +1,5 @@
 import React from "react";
-import search from "../search";
+import search from "../resources/search";
 
 /**
  * Class that represents the side "panel" which either displays the word suggestions, or

@@ -1,4 +1,4 @@
-import words from "./resources/words";
+import words from "./words";
 
 const search = (word) => {
     if (word.replace(/\s+/g, '').length === 0) {  // if word is all whitespace
