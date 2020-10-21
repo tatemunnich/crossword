@@ -123,21 +123,9 @@ body {
   flex-direction: row;
 }
 
-/*.panel-contents {*/
-/*  width: 260px;*/
-/*  border-style: solid;*/
-/*  border-radius: 8px;*/
-/*  background-color: #dddddd;*/
-/*  border-color: #bfbfbf;*/
-/*  margin-left: 40px;*/
-/*  width: 260px;*/
-/*  height: 360px;*/
-/*  padding: 20px;*/
-/*  text-align: left;*/
-/*}*/
-
 .panel-contents {
   text-align: left;
+  width: 250px;
 }
 
 .word-length-stats {

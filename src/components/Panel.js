@@ -52,12 +52,12 @@ function StatsPanel(stats) {
 
     return <div className={"panel-contents"}>
         <h3>Stats</h3>
-        <p><strong># words:</strong> {stats.numWords}</p>
-        <p><strong># letters:</strong> {stats.letterTotal}</p>
-        <p><strong># black squares:</strong> {stats.blackCount} ({stats.blackPercent}%)</p>
-        <p style={{fontWeight: "bold"}}>Word counts</p>
+        <p><strong># Words:</strong> {stats.numWords}</p>
+        <p><strong># Letters:</strong> {stats.letterTotal}</p>
+        <p><strong># Black Squares:</strong> {stats.blackCount} ({stats.blackPercent}%)</p>
+        <p style={{fontWeight: "bold"}}>Word Counts</p>
         <div className={"word-length-stats"}>{lengthList}</div>
-        <p style={{fontWeight: "bold"}}>Letter counts</p>
+        <p style={{fontWeight: "bold"}}>Letter Counts</p>
         <div className={"letter-count-stats"}>{letterList}</div>
     </div>;
 }
