@@ -2,7 +2,10 @@ import React from "react";
 import Square from "./Square";
 import {BOARD_SIZE} from "./Game";
 
-
+/**
+ * Class that represents the "board", or the main grid that the user interacts with. The Board
+ * class builds a grid that is composed of Square objects.
+ */
 class Board extends React.Component {
     constructor(props) {
         super(props);
@@ -15,7 +18,11 @@ class Board extends React.Component {
         }
     }
 
-
+    /**
+     * Function that renders the Square objects for the board.
+     * @param i
+     * @returns {JSX.Element}
+     */
     renderSquare(i) {
         return (
         <Square

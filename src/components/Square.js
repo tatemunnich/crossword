@@ -1,6 +1,9 @@
 import React from "react";
 
-
+/**
+ * Class that represents a Square object. Each square is a button that the user can click and
+ * enter a letter on.
+ */
 class Square extends React.Component {
 
     classStyle() {

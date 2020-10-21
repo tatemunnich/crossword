@@ -1,6 +1,10 @@
 import React from "react";
 import search from "../search";
 
+/**
+ * Class that represents the side "panel" which either displays the word suggestions, or
+ * the help info.
+ */
 class Panel extends React.Component {
     render() {
         const panelControl = this.props.panelControl;
@@ -16,6 +20,11 @@ class Panel extends React.Component {
     }
 }
 
+/**
+ * Function that displays help info in the panel area.
+ * @returns {JSX.Element}
+ * @constructor
+ */
 function HelpPanel() {
     return (
         <div className={"panel-contents"}>
@@ -62,6 +71,14 @@ function StatsPanel(stats) {
     </div>;
 }
 
+/**
+ * Function that displays word suggestions in the panel area.
+ * @param words
+ * @param labels
+ * @param onSuggestionClick
+ * @returns {JSX.Element}
+ * @constructor
+ */
 function WordsPanel(words, labels, onSuggestionClick) {
     const word_limit = 500;
     const acrossList = search(words[0]).slice(0, word_limit).map((word) =>
