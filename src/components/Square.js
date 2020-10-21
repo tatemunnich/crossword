@@ -35,7 +35,7 @@ class Square extends React.Component {
                     </label>
                     : null
                 }
-                <button
+                <div
                     tabIndex={-1}
                     className={this.classStyle()}
                     id={this.props.index}
@@ -45,7 +45,7 @@ class Square extends React.Component {
                     aria-label={this.ariaLabel()}
                 >
                     {this.props.value}
-                </button>
+                </div>
             </td>
         );
     }

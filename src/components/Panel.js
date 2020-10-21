@@ -13,6 +13,8 @@ class Panel extends React.Component {
             panelContents = HelpPanel();
         } else if (panelControl === "Words") {
             panelContents = WordsPanel(this.props.currentWords, this.props.currentWordLabels, this.props.onSuggestionClick)
+        } else if (panelControl === "Stats") {
+            panelContents = StatsPanel(this.props.stats)
         }
         return panelContents
     }
@@ -30,10 +32,43 @@ function HelpPanel() {
             <p>Click on a square to enter a letter.</p>
             <p>Clear a square with backspace.</p>
             <p>Move around the board with the arrow keys.</p>
-            <p>To toggle a black square, select the square and press the "." key.</p>
+            <p>Toggle black squares with the "." key.</p>
             <p>Click the "Words" button to view word suggestions.</p>
+            <p>"Symmetry" controls whether a new black square is mirrored.</p>
+            <p>Press "Generate Pattern" to load a random blank board.</p>
         </div>
     )
+}
+
+function StatsPanel(stats) {
+    const lengthList = Object.keys(stats.wordLengths).map(key =>
+        <div style={{color: (key<3 && stats.wordLengths[key]>0)? "red":"black"}}>
+            <dt>{key}: </dt>
+            <dd>
+                {stats.wordLengths[key]}
+            </dd>
+        </div>
+    );
+
+    const letterList = Object.keys(stats.letterCounts).map(key =>
+        <div>
+            <dt>{key}: </dt>
+            <dd>
+                {stats.letterCounts[key]}
+            </dd>
+        </div>
+    );
+
+    return <div className={"panel-contents"}>
+        <h3>Stats</h3>
+        <p><strong># words:</strong> {stats.numWords}</p>
+        <p><strong># letters:</strong> {stats.letterTotal}</p>
+        <p><strong># black squares:</strong> {stats.blackCount} ({stats.blackPercent}%)</p>
+        <p style={{fontWeight: "bold"}}>Word counts</p>
+        <div className={"word-length-stats"}>{lengthList}</div>
+        <p style={{fontWeight: "bold"}}>Letter counts</p>
+        <div className={"letter-count-stats"}>{letterList}</div>
+    </div>;
 }
 
 /**
@@ -65,15 +100,15 @@ function WordsPanel(words, labels, onSuggestionClick) {
         <div className={"suggestion-panel"}>
             <div className={"suggestion-word"}>
                 <h3>{labels[0]} across</h3>
-                <h5>{words[0].replaceAll(" ", "-")}</h5>
+                <h4>{words[0].replaceAll(" ", "-")}</h4>
             </div>
             <div className={"suggestion-box"} onMouseDown={e => onSuggestionClick(e, true)}>
                 {acrossList}
             </div>
-
+            <hr/>
             <div className={"suggestion-word"}>
                 <h3>{labels[1]} down</h3>
-                <h5>{words[1].replaceAll(" ", "-")}</h5>
+                <h4>{words[1].replaceAll(" ", "-")}</h4>
             </div>
             <div className={"suggestion-box"} onMouseDown={e => onSuggestionClick(e, false)}>
                 {downList}

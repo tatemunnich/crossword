@@ -2,6 +2,7 @@ import React from 'react';
 import Board from "./Board";
 import Menu from "./Menu";
 import Panel from "./Panel";
+import patterns from "../resources/patterns";
 
 export const BOARD_SIZE = 15;
 
@@ -45,6 +46,10 @@ class Game extends React.Component {
         return JSON.parse(JSON.stringify(current.squares.slice())); // creates a deep copy
     }
 
+    /**
+     * Adds square array to the history list, making it the current state of the game
+     * @param {string[][]} squares
+     */
     addHistory(squares) {
         const history = this.state.history;
         this.setState({
@@ -55,13 +60,17 @@ class Game extends React.Component {
         });
     }
 
+    /**
+     * Focuses square at index i, updates state
+     * @param {int} i
+     */
     focusSquare(i) {
         if (i<BOARD_SIZE**2 && i>=0) {
             let panelContents = this.state.panelRef.current.children[0];
             let boxes = panelContents.querySelectorAll(".suggestion-box")
             if (boxes.length) {
                 boxes[0].scrollTo(0,0);
-                boxes[1].scrollTo(0,0);
+                boxes[1].scrollTo(0,0);  // scroll suggestion lists to the top
             }
 
             const field = this.state.boardRef.current.state.squareRefs[i].current;
@@ -93,7 +102,12 @@ class Game extends React.Component {
         return labels;
     }
 
-    getLabelList(squares) {
+    /**
+     * Generates a 2d array of labels for current squares, returns array of number strings, empty string if no label
+     * @returns labels {string[][]}
+     */
+    getLabelList() {
+        const squares = this.getCurrentSquares();
         const acrossLabels = this.getLabelListHelper(squares);
         const transpose_squares = this.transposeArray(squares);
         const downLabels = this.transposeArray(this.getLabelListHelper(transpose_squares));
@@ -132,11 +146,21 @@ class Game extends React.Component {
         return (acrossWords);
     }
 
-    getWordList(squares) {
+    /**
+     * Generates a list of all of the words, across and down from a given grid
+     * @returns words {string[]}
+     */
+    getWordList() {
+        const squares = this.getCurrentSquares();
         const transpose_squares = this.transposeArray(squares);
         return this.getWordListHelper(squares).concat(this.getWordListHelper(transpose_squares));
     }
 
+    /**
+     * Returns index value for moving forward one square, or the same square if nowhere to move forward
+     * @param currentIndex {int}
+     * @returns {int}
+     */
     getForwardIndex(currentIndex) {
         if (this.state.isAcross && currentIndex%BOARD_SIZE!==BOARD_SIZE-1) {
             return currentIndex+1;
@@ -147,6 +171,11 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Returns index value for moving backward one square, or the same square if nowhere to move backward
+     * @param currentIndex {int}
+     * @returns {int}
+     */
     getBackwardIndex(currentIndex) {
         if (this.state.isAcross && currentIndex%BOARD_SIZE!==0) {
            return currentIndex-1;
@@ -157,6 +186,13 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Returns the [row, column] of the start of the word containing letter at index, across or down depending on isAcross value
+     * @param index {int}
+     * @param squares {string[][]}
+     * @param isAcross {boolean}
+     * @returns {int[]}
+     */
     getStartPosition(index, squares, isAcross) {
         let row = Math.floor(index/BOARD_SIZE);
         let column = index%BOARD_SIZE;
@@ -179,6 +215,13 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Returns the [row, column] of the end of the word containing letter at index, across or down depending on isAcross value
+     * @param index {int}
+     * @param squares {string[][]}
+     * @param isAcross {boolean}
+     * @returns {int[]}
+     */
     getEndPosition(index, squares, isAcross) {
         let row = Math.floor(index/BOARD_SIZE);
         let column = index%BOARD_SIZE;
@@ -218,9 +261,15 @@ class Game extends React.Component {
         return word;
     }
 
-    getCurrentWords(index, squares) {
+    /**
+     * Returns [acrossWord, downWord] that both contain the square at index
+     * @param index {int|null}
+     * @returns {string[]}
+     */
+    getCurrentWords(index) {
         if (index===null) return ["",""]
 
+        const squares = this.getCurrentSquares();
         const row = Math.floor(index/BOARD_SIZE);
         const column = index % BOARD_SIZE;
         const acrossWord = this.getCurrentWordsHelper(row, column, squares);
@@ -228,9 +277,15 @@ class Game extends React.Component {
         return [acrossWord, downWord];
     }
 
-    getCurrentWordLabels(index, squares) {
+    /**
+     * Returns [acrossLabel, downLabel] of the words that intersect square at index
+     * @param index {int|null}
+     * @returns {string[]}
+     */
+    getCurrentWordLabels(index) {
         if (index === null) return ["",""]
-        const labels = this.getLabelList(squares);
+        const squares = this.getCurrentSquares();
+        const labels = this.getLabelList();
         const acrossStart = this.getStartPosition(index, squares, true);
         const downStart = this.getStartPosition(index, squares, false);
         const acrossLabel = labels[acrossStart[0]][acrossStart[1]]
@@ -238,6 +293,12 @@ class Game extends React.Component {
         return [acrossLabel, downLabel]
     }
 
+    /**
+     * Returns a new grid that will toggle the black square at index, and its mirror if symmetry is on
+     * @param index {int}
+     * @param squares {string[][]}
+     * @returns {string[][]}
+     */
     toggleBlackSquare(index, squares) {
         const row = Math.floor(index/BOARD_SIZE);
         const column = index % BOARD_SIZE;
@@ -250,6 +311,11 @@ class Game extends React.Component {
         return squares
     }
 
+    /**
+     * Function for handling arrow key presses
+     * @param {string} input
+     * @param {int} index
+     */
     handleArrowKey(input, index) {
         if (this.state.isAcross) {
             switch (input) {
@@ -277,6 +343,10 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Function for handling keyboard presses
+     * @param e
+     */
     handleKeyDown = (e) => {
         const input = e.key;
         const index = parseInt(e.target.id);
@@ -331,9 +401,19 @@ class Game extends React.Component {
 
         } else if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(input)) { // an arrow key was pressed
             this.handleArrowKey(input, index);
+
+        } else if (input === "Tab") {
+            this.setState({
+                focusIndex: null,
+                focusRow: null,
+                focusCol: null
+            });
         }
     }
 
+    /**
+     * Removes last element of history to undo previous change
+     */
     undo() {
         const stepNumber = this.state.stepNumber;
         const history = this.state.history.slice();
@@ -346,6 +426,9 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Resets history to original state
+     */
     reset() {
         const history = this.state.history.slice();
         this.setState({
@@ -355,7 +438,7 @@ class Game extends React.Component {
     }
 
     /**
-     * Function for handling menu button clicks.
+     * Function for handling menu button clicks
      * @param e
      */
     handleMenuClick = (e) => {
@@ -365,21 +448,21 @@ class Game extends React.Component {
             this.undo();
         } else if (value==="reset") {
             this.reset();
-        } else if (value==="toggle-symmetry") {
-            const btn = document.getElementById("toggle-symmetry")
-            if (this.state.symmetrical) {
-                this.setState({symmetrical: false})
-                btn.innerText = "Symmetry: Off";
-            }
-            else {
-                this.setState({symmetrical: true})
-                btn.innerHTML = "Symmetry: On";
-            }
+        } else if (value==="symmetry") {
+            const sym = this.state.symmetrical;
+            this.setState({symmetrical: !sym});
+        } else if (value==="pattern") {
+            this.addHistory(patterns[Math.floor(Math.random() * patterns.length)]);
+            // gets random pattern https://stackoverflow.com/a/5915122
         } else {
             this.setState({panelControl: value});
         }
     }
 
+    /**
+     * Function for handling square clicks
+     * @param e
+     */
     handleSquareClick = (e) => {
         const index = parseInt(e.target.id);
         if (this.state.focusIndex === index) {
@@ -390,6 +473,10 @@ class Game extends React.Component {
         }
     }
 
+    /**
+     * Returns a 2d array with true and false values used to highlight the current word
+     * @returns {boolean[][]}
+     */
     getHighlightedSquares() {
         let highlightedSquares = this.fill2dArray();
         const squares = this.getCurrentSquares();
@@ -430,9 +517,14 @@ class Game extends React.Component {
         return highlightedSquares;
     }
 
+    /**
+     * Function for filling suggestion onto grid
+     * @param e
+     * @param isAcross
+     */
     handleSuggestionClick = (e, isAcross) => {
         e.preventDefault();
-        if (e.target.className !== 'suggestion') return null;
+        if (e.target.className !== 'suggestion') return;
         const word = e.target.textContent;
         const squares = this.getCurrentSquares();
         const index = this.state.focusIndex;
@@ -442,6 +534,14 @@ class Game extends React.Component {
         this.focusSquare(index);
     }
 
+    /**
+     * Returns a new grid that fills the across or down word that goes through the square at index
+     * @param {int} index
+     * @param {string[][]} squares
+     * @param {string} word - word to be inserted
+     * @param {boolean} isAcross
+     * @returns {string[][]}
+     */
     fillWord(index, squares, word, isAcross) {
         const [start_row, start_column] = this.getStartPosition(index, squares, isAcross);
         const [end_row, end_column] = this.getEndPosition(index, squares, isAcross);
@@ -463,45 +563,95 @@ class Game extends React.Component {
         return squares
     }
 
+    /**
+     * Removes focus from square if there is a click outside of the grid
+     * @param e
+     */
     handleBodyClick = (e) => {
         if (!['normal-square', 'highlighted-square', 'black-square', 'suggestion', 'suggestion-box'].includes(e.target.className)) {
-            this.setState({
-                focusIndex: null,
-                focusRow: null,
-                focusCol: null
-            })
+            if (e.target.className==="menu-button") {
+                e.preventDefault();
+                e.target.blur();
+            } else {
+                this.setState({
+                    focusIndex: null,
+                    focusRow: null,
+                    focusCol: null
+                });
+            }
         }
     }
 
-    render() {
-        const history = this.state.history;
-        const current = history[history.length - 1];
+    /**
+     * Calculates stats for stats panel
+     * @returns {{letterCounts: {}, blackPercent: string,
+     *            blackCount: int, wordLengths: {},
+     *            numWords: int, letterTotal: int}}
+     */
+    calculateStats() {
+        const allWords = this.getWordList();
+        const numWords = allWords.length;
+        let wordLengths = {};
 
+        for (let i=1; i<=BOARD_SIZE; i++) {
+            wordLengths[i]=0;
+        }
+        for (const word of allWords) {
+            const wordLength = word.length;
+            wordLengths[wordLength]++;
+        }
+
+        const squares = this.getCurrentSquares();
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        let letterCounts = {};
+        let blackCount = 0;
+
+        for (const letter of alphabet) {
+            letterCounts[letter] = 0;
+        }
+        for (const row of squares) {
+            for (const letter of row) {
+                if (letter === ".") {
+                    blackCount++;
+                } else if (alphabet.includes(letter)) {
+                    letterCounts[letter]++;
+                }
+            }
+        }
+        const letterTotal = BOARD_SIZE**2 - blackCount;
+
+        const blackPercent = (100*blackCount/(BOARD_SIZE**2)).toFixed(2);
+
+        return {wordLengths, numWords, letterCounts, letterTotal, blackCount, blackPercent};
+    }
+
+    render() {
         return (
             <div className="body" onMouseDown={this.handleBodyClick}>
                 <div className={"menu"}>
                     <Menu
                         onClick={this.handleMenuClick}
-                        toggleSymmetry={this.toggleSymmetry}
+                        symmetrical={this.state.symmetrical}
                     />
                 </div>
                 <div className={"game"}>
                     <table className="game-board" style={{width: (34*BOARD_SIZE).toString()+"px"}}>
                         <Board
-                            squares={current.squares}
+                            squares={this.getCurrentSquares()}
                             onClick={this.handleSquareClick}
-                            labels={this.getLabelList(current.squares)}
+                            labels={this.getLabelList()}
                             onKeyDown={this.handleKeyDown}
                             ref={this.state.boardRef}
-                            highlightedSquares={this.getHighlightedSquares(current.squares)}
+                            highlightedSquares={this.getHighlightedSquares()}
                         />
                     </table>
                     <div className={"panel"} ref={this.state.panelRef}>
                         <Panel
                             panelControl={this.state.panelControl}
-                            currentWords={this.getCurrentWords(this.state.focusIndex, current.squares)}
+                            currentWords={this.getCurrentWords(this.state.focusIndex)}
+                            stats={this.calculateStats()}
                             onSuggestionClick={this.handleSuggestionClick}
-                            currentWordLabels={this.getCurrentWordLabels(this.state.focusIndex, current.squares)}
+                            currentWordLabels={this.getCurrentWordLabels(this.state.focusIndex)}
                         />
                     </div>
                 </div>

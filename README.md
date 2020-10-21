@@ -1,5 +1,7 @@
 # Crossword Builder
 
+## Created by Team TSA, Spencer McNall and Tate Munnich
+
 ### How to Install Locally
 
 1. Clone in a directory
