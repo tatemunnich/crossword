@@ -27,8 +27,6 @@ class Game extends React.Component {
         }
     }
 
-    //TODO: change help order, bold menu, maybe fix highlight square on away click
-
     transposeArray(array) {
         // https://stackoverflow.com/questions/17428587/transposing-a-2d-array-in-javascript
         return array[0].map((_, colIndex) => array.map(row => row[colIndex]))
@@ -633,6 +631,7 @@ class Game extends React.Component {
                 <div className={"menu"}>
                     <Menu
                         onClick={this.handleMenuClick}
+                        status={this.state.panelControl}
                         symmetrical={this.state.symmetrical}
                     />
                 </div>

@@ -2,9 +2,6 @@
   text-align: center;
 }
 
-
-/*Start from tutorial CSS*/
-
 body {
   font: 14px "Century Gothic", Futura, sans-serif;
   margin: 20px;
@@ -140,7 +137,6 @@ body {
 
 dt {
   float: left;
-  /*font-weight: bold;*/
   text-align: right;
   width: 2.5em;
 }
@@ -187,5 +183,3 @@ h4 {
 .suggestion:hover {
   background: #eee
 }
-
-/*End from tutorial CSS*/
