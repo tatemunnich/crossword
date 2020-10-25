@@ -400,6 +400,7 @@ class Game extends React.Component {
             }
 
         } else if (["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(input)) { // an arrow key was pressed
+            e.preventDefault();
             this.handleArrowKey(input, index);
 
         } else if (input === "Tab") {
@@ -477,44 +478,21 @@ class Game extends React.Component {
      * Returns a 2d array with true and false values used to highlight the current word
      * @returns {boolean[][]}
      */
-    getHighlightedSquares() {
-        let highlightedSquares = this.fill2dArray();
-        const squares = this.getCurrentSquares();
-        let highlightIsTrue = true;
-        let hasHitFocus = false;
-
-        for (let i = 0; i < BOARD_SIZE; i++) {
-            for (let j = 0; j < BOARD_SIZE; j++) {
-                if (!hasHitFocus) {
-                    highlightIsTrue = true;
-                }
-                if (squares[i][j] === '.' && i === this.state.focusRow && this.state.isAcross) {
-                    highlightIsTrue = false;
-                    if (!hasHitFocus) {
-                        for (let k = 0; k < j; k++) {
-                            highlightedSquares[i][k] = false;
-                        }
-                    }
-                }
-                else if (squares[i][j] === '.' && j === this.state.focusCol && !this.state.isAcross) {
-                    highlightIsTrue = false;
-                    if (!hasHitFocus) {
-                        for (let k = 0; k < i; k++) {
-                            highlightedSquares[k][j] = false;
-                        }
-                    }
-                }
-                if (i * BOARD_SIZE + j === this.state.focusIndex) {
-                    highlightedSquares[i][j] = false;
-                    hasHitFocus = true;
-                } else if (i === this.state.focusRow && highlightIsTrue && this.state.isAcross) {
-                    highlightedSquares[i][j] = true;
-                } else if (j === this.state.focusCol && highlightIsTrue && !this.state.isAcross) {
-                    highlightedSquares[i][j] = true;
-                }
+    getHighlightedSquares(squares) {
+        const index = this.state.focusIndex;
+        if (index === null) return this.fill2dArray(false);
+        const isAcross = this.state.isAcross;
+        const [start_row, start_column] = this.getStartPosition(index, squares, isAcross);
+        const [end_row, end_column] = this.getEndPosition(index, squares, isAcross);
+        let highlights = this.fill2dArray(false);
+        for (let col=start_column; col<= end_column; col++) {
+            for (let row=start_row; row<= end_row; row++) {
+                highlights[row][col] = true;
             }
         }
-        return highlightedSquares;
+        highlights[this.state.focusRow][this.state.focusCol] = false;
+
+        return highlights
     }
 
     /**
@@ -643,7 +621,7 @@ class Game extends React.Component {
                             labels={this.getLabelList()}
                             onKeyDown={this.handleKeyDown}
                             ref={this.state.boardRef}
-                            highlightedSquares={this.getHighlightedSquares()}
+                            highlightedSquares={this.getHighlightedSquares(this.getCurrentSquares())}
                         />
                     </table>
                     <div className={"panel"} ref={this.state.panelRef}>
