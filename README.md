@@ -1,6 +1,8 @@
 # Crossword Builder
 
-## Created by Team TSA, Spencer McNall and Tate Munnich
+## Created by Spencer McNall and Tate Munnich
+
+Want to see the finished project online? [Here](https://tatemunnich.github.io/crossword/) it is!
 
 ### How to Install Locally
 
@@ -10,7 +12,7 @@
 2. Install package dependencies `npm install`. If this isn't working, make sure you have [Node](https://nodejs.org/en/download/) installed on your computer.
 3. Run using `npm start`
 
-### Host Project on GitHub Pages
+### Host the Project Yourself with GitHub Pages
 
 1. Navigate to project directory and install GitHub Pages package as a dev-dependency `npm install gh-pages --save-dev`
 2. Just above the name in `package.json` file, add the property `"homepage": "http://{username}.github.io/{repo-name}"`
