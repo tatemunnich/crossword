@@ -41,6 +41,11 @@ function HelpPanel() {
     )
 }
 
+/**
+ * Function that displays stats info in the panel area.
+ * @returns {JSX.Element}
+ * @constructor
+ */
 function StatsPanel(stats) {
     const lengthList = Object.keys(stats.wordLengths).map(key =>
         <div style={{color: (key<3 && stats.wordLengths[key]>0)? "red":"black"}}>
@@ -60,9 +65,13 @@ function StatsPanel(stats) {
         </div>
     );
 
+    const maxWords = 78;
+
     return <div className={"panel-contents"}>
         <h3>Stats</h3>
-        <p><strong># Words:</strong> {stats.numWords}</p>
+        <p style={{color: (stats.numWords>maxWords)? "red":"black"}}>
+            <strong># Words:</strong> {stats.numWords}
+        </p>
         <p><strong># Letters:</strong> {stats.letterTotal}</p>
         <p><strong># Black Squares:</strong> {stats.blackCount} ({stats.blackPercent}%)</p>
         <p style={{fontWeight: "bold"}}>Word Counts</p>
