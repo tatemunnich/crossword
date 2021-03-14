@@ -4,7 +4,8 @@ import Menu from "./Menu";
 import Panel from "./Panel";
 import patterns from "../resources/patterns";
 
-export const BOARD_SIZE = 15;
+export const BOARD_ROWS = 15;
+export const BOARD_COLUMNS = 20;
 
 class Game extends React.Component {
     constructor(props) {
@@ -27,15 +28,23 @@ class Game extends React.Component {
         }
     }
 
-    transposeArray(array) {
-        // https://stackoverflow.com/questions/17428587/transposing-a-2d-array-in-javascript
-        return array[0].map((_, colIndex) => array.map(row => row[colIndex]))
+    transposeArray(matrix) {
+        // https://stackoverflow.com/questions/4492678/swap-rows-with-columns-transposition-of-a-matrix-in-javascript#comment24307346_13241545
+        return matrix[0].map((col, i) => matrix.map(row => row[i]));
     }
 
-    fill2dArray(fill) {
+    fill2dArray(fill, transpose=false) {
+        let num_rows, num_cols;
+        if (transpose) {
+            num_rows = BOARD_COLUMNS;
+            num_cols = BOARD_ROWS;
+        } else {
+            num_rows = BOARD_ROWS;
+            num_cols = BOARD_COLUMNS;
+        }
         let array = []
-        for (let i=0; i<BOARD_SIZE; i++) {
-            array.push(Array(BOARD_SIZE).fill(fill))
+        for (let i=0; i<num_rows; i++) {
+            array.push(Array(num_cols).fill(fill))
         }
         return array
     }
@@ -65,7 +74,7 @@ class Game extends React.Component {
      * @param {int} i
      */
     focusSquare(i) {
-        if (i<BOARD_SIZE**2 && i>=0) {
+        if (i<BOARD_ROWS*BOARD_COLUMNS && i>=0) {
             let panelContents = this.state.panelRef.current.children[0];
             let boxes = panelContents.querySelectorAll(".suggestion-box")
             if (boxes.length) {
@@ -77,18 +86,28 @@ class Game extends React.Component {
             field.focus();
             this.setState({
                 focusIndex: i,
-                focusRow: Math.floor(i/BOARD_SIZE),
-                focusCol: i % BOARD_SIZE
+                focusRow: Math.floor(i/BOARD_COLUMNS),
+                focusCol: i % BOARD_COLUMNS
             })
         }
     }
 
-    getLabelListHelper(squares) {
-        let labels = this.fill2dArray("")
+    getLabelListHelper(squares, transposed) {
+        let labels = this.fill2dArray("", transposed);
 
-        for (let i = 0; i<BOARD_SIZE; i++) {
+        let num_rows, num_columns;
+        if (transposed) {
+            num_rows = BOARD_COLUMNS;
+            num_columns = BOARD_ROWS;
+            squares = this.transposeArray(squares);
+        } else {
+            num_rows = BOARD_ROWS;
+            num_columns = BOARD_COLUMNS;
+        }
+
+        for (let i = 0; i<num_rows; i++) {
             let prevBlack = true;
-            for (let j = 0; j<BOARD_SIZE; j++) {
+            for (let j = 0; j<num_columns; j++) {
                 const letter = squares[i][j];
                 if (letter === '.') {
                     prevBlack = true;
@@ -108,14 +127,13 @@ class Game extends React.Component {
      */
     getLabelList() {
         const squares = this.getCurrentSquares();
-        const acrossLabels = this.getLabelListHelper(squares);
-        const transpose_squares = this.transposeArray(squares);
-        const downLabels = this.transposeArray(this.getLabelListHelper(transpose_squares));
+        const acrossLabels = this.getLabelListHelper(squares, false);
+        const downLabels = this.transposeArray(this.getLabelListHelper(squares, true));
         let labels = acrossLabels.slice();
 
         let label = 1;
-        for (let i =0; i<BOARD_SIZE; i++) {
-            for (let j=0; j<BOARD_SIZE; j++) {
+        for (let i =0; i<BOARD_ROWS; i++) {
+            for (let j=0; j<BOARD_COLUMNS; j++) {
                 if (downLabels[i][j]==='L' || acrossLabels[i][j]==='L') {
                     labels[i][j]=label.toString();
                     label = label + 1;
@@ -162,10 +180,10 @@ class Game extends React.Component {
      * @returns {int}
      */
     getForwardIndex(currentIndex) {
-        if (this.state.isAcross && currentIndex%BOARD_SIZE!==BOARD_SIZE-1) {
+        if (this.state.isAcross && currentIndex%BOARD_COLUMNS!==BOARD_COLUMNS-1) {
             return currentIndex+1;
-        } else if (!this.state.isAcross && currentIndex<BOARD_SIZE**2-BOARD_SIZE) {
-            return currentIndex + BOARD_SIZE;
+        } else if (!this.state.isAcross && currentIndex<BOARD_ROWS*BOARD_COLUMNS-BOARD_COLUMNS) {
+            return currentIndex + BOARD_COLUMNS;
         } else {
             return currentIndex;
         }
@@ -177,10 +195,10 @@ class Game extends React.Component {
      * @returns {int}
      */
     getBackwardIndex(currentIndex) {
-        if (this.state.isAcross && currentIndex%BOARD_SIZE!==0) {
+        if (this.state.isAcross && currentIndex%BOARD_COLUMNS!==0) {
            return currentIndex-1;
-        } else if (!this.state.isAcross && currentIndex>=BOARD_SIZE) {
-            return currentIndex-BOARD_SIZE;
+        } else if (!this.state.isAcross && currentIndex>=BOARD_COLUMNS) {
+            return currentIndex-BOARD_COLUMNS;
         } else {
             return currentIndex;
         }
@@ -194,21 +212,21 @@ class Game extends React.Component {
      * @returns {int[]}
      */
     getStartPosition(index, squares, isAcross) {
-        let row = Math.floor(index/BOARD_SIZE);
-        let column = index%BOARD_SIZE;
+        let row = Math.floor(index/BOARD_COLUMNS);
+        let column = index%BOARD_COLUMNS;
 
         if (squares[row][column]===".") return [row, column];
 
         if (isAcross) {
-            while (column%BOARD_SIZE !== 0 && squares[row][column-1] !== ".") {
+            while (column%BOARD_COLUMNS !== 0 && squares[row][column-1] !== ".") {
                 column = column - 1
             }
             return [row, column]
         } else {
-            let trans_column = Math.floor(index/BOARD_SIZE);
-            let trans_row = index%BOARD_SIZE;
+            let trans_column = Math.floor(index/BOARD_COLUMNS);
+            let trans_row = index%BOARD_COLUMNS;
             squares = this.transposeArray(squares);
-            while (trans_column%BOARD_SIZE !== 0 && squares[trans_row][trans_column-1] !== ".") {
+            while (trans_column%BOARD_ROWS !== 0 && squares[trans_row][trans_column-1] !== ".") {
                 trans_column = trans_column - 1
             }
             return [trans_column, trans_row]
@@ -223,36 +241,44 @@ class Game extends React.Component {
      * @returns {int[]}
      */
     getEndPosition(index, squares, isAcross) {
-        let row = Math.floor(index/BOARD_SIZE);
-        let column = index%BOARD_SIZE;
+        let row = Math.floor(index/BOARD_COLUMNS);
+        let column = index%BOARD_COLUMNS;
 
         if (squares[row][column]===".") return [row, column];
 
         if (isAcross) {
-            while (column%BOARD_SIZE !== BOARD_SIZE-1 && squares[row][column+1] !== ".") {
+            while (column%BOARD_COLUMNS !== BOARD_COLUMNS-1 && squares[row][column+1] !== ".") {
                 column = column + 1
             }
             return [row, column]
         } else {
-            let trans_column = Math.floor(index/BOARD_SIZE);
-            let trans_row = index%BOARD_SIZE;
+            let trans_column = Math.floor(index/BOARD_COLUMNS);
+            let trans_row = index%BOARD_COLUMNS;
             squares = this.transposeArray(squares);
-            while (trans_column%BOARD_SIZE !== BOARD_SIZE-1 && squares[trans_row][trans_column+1] !== ".") {
+            while (trans_column%BOARD_ROWS !== BOARD_ROWS-1 && squares[trans_row][trans_column+1] !== ".") {
                 trans_column = trans_column + 1
             }
             return [trans_column, trans_row]
         }
     }
 
-    getCurrentWordsHelper(row, column, squares) {
+    getCurrentWordsHelper(row, column, squares, transpose) {
+        let max_columns;
+        if (transpose) {
+            squares = this.transposeArray(squares);
+            max_columns = BOARD_ROWS;
+        } else {
+            max_columns = BOARD_COLUMNS;
+        }
+
         if (squares[row][column]===".") return "";
 
-        while (column%BOARD_SIZE !== 0 && squares[row][column-1] !== ".") {
+        while (column%max_columns !== 0 && squares[row][column-1] !== ".") {
             column = column - 1
         }
 
         let word = "";
-        while (column%BOARD_SIZE !== BOARD_SIZE-1 && squares[row][column+1] !== ".") {
+        while (column%max_columns !== max_columns-1 && squares[row][column+1] !== ".") {
             word = word + squares[row][column];
             column = column + 1;
         }
@@ -262,7 +288,7 @@ class Game extends React.Component {
     }
 
     /**
-     * Returns [acrossWord, downWord] that both contain the square at index
+     * Returns [acrossWord, downWord] that both cfontain the square at index
      * @param index {int|null}
      * @returns {string[]}
      */
@@ -270,10 +296,10 @@ class Game extends React.Component {
         if (index===null) return ["",""]
 
         const squares = this.getCurrentSquares();
-        const row = Math.floor(index/BOARD_SIZE);
-        const column = index % BOARD_SIZE;
-        const acrossWord = this.getCurrentWordsHelper(row, column, squares);
-        const downWord = this.getCurrentWordsHelper(column, row, this.transposeArray(squares));
+        const row = Math.floor(index/BOARD_COLUMNS);
+        const column = index % BOARD_COLUMNS;
+        const acrossWord = this.getCurrentWordsHelper(row, column, squares, false);
+        const downWord = this.getCurrentWordsHelper(column, row, squares, true);
         return [acrossWord, downWord];
     }
 
@@ -300,12 +326,12 @@ class Game extends React.Component {
      * @returns {string[][]}
      */
     toggleBlackSquare(index, squares) {
-        const row = Math.floor(index/BOARD_SIZE);
-        const column = index % BOARD_SIZE;
+        const row = Math.floor(index/BOARD_COLUMNS);
+        const column = index % BOARD_COLUMNS;
         squares[row][column] === '.' ? squares[row][column] = ' ' : squares[row][column] = '.';  // toggle input square
 
         if (this.state.symmetrical) {
-            squares[BOARD_SIZE-row-1][BOARD_SIZE-column-1] = squares[row][column]
+            squares[BOARD_ROWS-row-1][BOARD_COLUMNS-column-1] = squares[row][column]
         }
 
         return squares
@@ -350,8 +376,8 @@ class Game extends React.Component {
     handleKeyDown = (e) => {
         const input = e.key;
         const index = parseInt(e.target.id);
-        const row = Math.floor(index/BOARD_SIZE);
-        const column = index % BOARD_SIZE;
+        const row = Math.floor(index/BOARD_COLUMNS);
+        const column = index % BOARD_COLUMNS;
         let squares = this.getCurrentSquares();
 
         if ((input.toUpperCase() !== input.toLowerCase() && input.length === 1 )) { // if letter
@@ -370,7 +396,7 @@ class Game extends React.Component {
             e.preventDefault();
             if (squares[row][column] === " ") {
                 const backwardIndex = this.getBackwardIndex(index);
-                const backwardLetter = squares[Math.floor(backwardIndex/BOARD_SIZE)][backwardIndex%BOARD_SIZE];
+                const backwardLetter = squares[Math.floor(backwardIndex/BOARD_COLUMNS)][backwardIndex%BOARD_COLUMNS];
                 if (backwardLetter === " ") {
                     this.focusSquare(backwardIndex);
                 } else if (backwardLetter === ".") {
@@ -378,7 +404,7 @@ class Game extends React.Component {
                     this.focusSquare(backwardIndex)
                     this.addHistory(new_squares);
                 } else {
-                    squares[Math.floor(backwardIndex/BOARD_SIZE)][backwardIndex%BOARD_SIZE] = " ";
+                    squares[Math.floor(backwardIndex/BOARD_COLUMNS)][backwardIndex%BOARD_COLUMNS] = " ";
                     this.focusSquare(backwardIndex);
                     this.addHistory(squares);
                 }
@@ -453,7 +479,11 @@ class Game extends React.Component {
             const sym = this.state.symmetrical;
             this.setState({symmetrical: !sym});
         } else if (value==="pattern") {
-            this.addHistory(patterns[Math.floor(Math.random() * patterns.length)]);
+            const board = patterns[Math.floor(Math.random() * patterns.length)];
+            // TODO: get more patterns of other sizes
+            if (board.length === BOARD_ROWS && board[0].length === BOARD_COLUMNS) {
+                this.addHistory(board);
+            }
             // gets random pattern https://stackoverflow.com/a/5915122
         } else {
             this.setState({panelControl: value});
@@ -485,8 +515,8 @@ class Game extends React.Component {
         const [start_row, start_column] = this.getStartPosition(index, squares, isAcross);
         const [end_row, end_column] = this.getEndPosition(index, squares, isAcross);
         let highlights = this.fill2dArray(false);
-        for (let col=start_column; col<= end_column; col++) {
-            for (let row=start_row; row<= end_row; row++) {
+        for (let row=start_row; row<= end_row; row++) {
+            for (let col=start_column; col<= end_column; col++) {
                 highlights[row][col] = true;
             }
         }
@@ -571,7 +601,7 @@ class Game extends React.Component {
         const numWords = allWords.length;
         let wordLengths = {};
 
-        for (let i=1; i<=BOARD_SIZE; i++) {
+        for (let i=1; i<=Math.max(BOARD_ROWS, BOARD_COLUMNS); i++) {
             wordLengths[i]=0;
         }
         for (const word of allWords) {
@@ -596,9 +626,9 @@ class Game extends React.Component {
                 }
             }
         }
-        const letterTotal = BOARD_SIZE**2 - blackCount;
+        const letterTotal = BOARD_ROWS*BOARD_COLUMNS - blackCount;
 
-        const blackPercent = (100*blackCount/(BOARD_SIZE**2)).toFixed(2);
+        const blackPercent = (100*blackCount/(BOARD_ROWS*BOARD_COLUMNS)).toFixed(2);
 
         return {wordLengths, numWords, letterCounts, letterTotal, blackCount, blackPercent};
     }
@@ -614,7 +644,7 @@ class Game extends React.Component {
                     />
                 </div>
                 <div className={"game"}>
-                    <table className="game-board" style={{width: (6*BOARD_SIZE).toString()+"vh"}}>
+                    <table className="game-board" style={{width: (6*BOARD_COLUMNS).toString()+"vh"}}>
                         <Board
                             squares={this.getCurrentSquares()}
                             onClick={this.handleSquareClick}
