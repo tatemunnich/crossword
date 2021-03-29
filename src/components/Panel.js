@@ -68,7 +68,6 @@ function StatsPanel(stats) {
     const maxWords = 78;
 
     return <div className={"panel-contents"}>
-        <h3>Stats</h3>
         <p style={{color: (stats.numWords>maxWords)? "red":"black"}}>
             <strong># Words:</strong> {stats.numWords}
         </p>

@@ -5,7 +5,7 @@ import Panel from "./Panel";
 import patterns from "../resources/patterns";
 
 export const BOARD_ROWS = 15;
-export const BOARD_COLUMNS = 20;
+export const BOARD_COLUMNS = 15;
 
 class Game extends React.Component {
     constructor(props) {
